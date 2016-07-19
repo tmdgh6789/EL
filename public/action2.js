@@ -60,35 +60,26 @@ function resizeVideo() {
 $('#buttonListen').click(function () {
     //noinspection JSUndeclaredVariable
     mode = modes.LISTEN;
+    $('#control-button').hide();
     count.LISTEN = 0;
     //noinspection JSUnresolvedFunction
     player.seekTo(0);
     listen_play();
 });
 
-var listenCounter = 0;
+var listenCount = 0;
 function listen_play() {
     //noinspection JSUndeclaredVariable
     mode = modes.LISTEN;
     $('#msg1').text('Listen');
     $('#msg2').text('');
     $('#cover').css('opacity', '0');
-    $('#control-button').hide();
-    $('#listenCounter').text(listenCounter);
-
     if (!count.LISTEN) {
         count.LISTEN = 0;
     }
-    if (count.LISTEN < 3) {
-        if (count.LISTEN > 3) {
-            //noinspection JSUnresolvedFunction
-            player.pauseVideo();
-            listenCounter++;
-        } else {
-            //noinspection JSUnresolvedFunction
-            player.playVideo();
-            listenCounter++;
-        }
+    if (count.LISTEN) {
+        //noinspection JSUnresolvedFunction
+        player.playVideo();
     }
 }
 
@@ -115,14 +106,23 @@ function onPlayerStateChange(event) {
 function listen_stateChange(event) {
     //noinspection JSUnresolvedVariable
     if (event.data == YT.PlayerState.ENDED){
-        listen_play();
+        $('#msg1').text('Listen');
+        //noinspection SpellCheckingInspection
+        $('#msg2').text('Click to countinue');
+        //noinspection JSJQueryEfficiency
+        $('#cover').css('opacity', '1');
+        //noinspection JSJQueryEfficiency
+        $('#cover').click(function () {
+            listen_play();
+        });
         count.LISTEN++;
-    } else { //noinspection JSUnresolvedVariable
-        if (event.data == YT.PlayerState.PAUSED){
-
-        }
+        listenCount++;
     }
+    $('#listenCounter').text(listenCount);
 }
+
+
+/* STUDY */
 
 
 // action!
