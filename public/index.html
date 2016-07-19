@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>sample</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="./style.css">
+    <!--suppress HtmlUnknownTarget -->
+    <script src="components/jquery/dist/jquery.min.js"></script>
+</head>
+<body>
+<div id="title"></div>
+<div id="body">
+    <div id="left">
+    </div>
+
+    <div id="middle">
+        <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+        <div id="player"></div>
+        <div id="cover" class="cover">
+            <div id="msg1"></div>
+            <div id="msg2">Loading...</div>
+            <div id="msg_study"></div>
+        </div>
+        <div id="marker">
+            <div id="markbar"></div>
+            <div id="mark_position"></div>
+            <div id="mark_button" class="mark_button_normal">press to mark</div>
+            <div id="mark_button_panel">
+                <div id="clear_button">clear mark</div>
+                <div class="empty_space"></div>
+                <div id="listen_button" class="listen_button">
+                    <img src="pic/daum-listen.jpg">
+                </div>
+                <div id="repeat_button" class="listen_button">
+                    <img src="pic/daum-repeat.jpg">
+                </div>
+            </div>
+            <div id="debug_panel">
+                <div id="debug1_button" class="debug_button">mark display</div>
+            </div>
+        </div>
+        <div id="audio"></div>
+    </div>
+
+    <div id="right">
+        <div id="listenStatus">
+            <div id="buttonListen" class="buttonMode">Listen</div>
+            <div id="listenCounter">0</div>
+        </div>
+        <div id="buttonMark" class="buttonMode">Mark</div>
+        <div id="buttonStudy" class="buttonMode">Study</div>
+        <div id="control_button" class="control_button"></div>
+    </div>
+</div>
+<script src="./action.js"></script>
+</body>
+</html>

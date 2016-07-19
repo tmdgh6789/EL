@@ -1,0 +1,24 @@
+{
+  "name": "el",
+  "version": "1.0.0",
+  "description": "EL",
+  "main": "index.js",
+  "dependencies": {
+    "bower": "^1.7.9",
+    "ejs": "^2.4.2",
+    "express": "^4.14.0",
+    "fs": "0.0.2",
+    "http": "0.0.0",
+    "supervisor": "^0.11.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://intra.novonetworks.com:8073/ENG/EL.git"
+  },
+  "author": "",
+  "license": "ISC"
+}

@@ -1,0 +1,26 @@
+{
+  "name": "el",
+  "description": "EL",
+  "main": "index.js",
+  "authors": [
+    "Tom <tmdgh6789@gmail.com>"
+  ],
+  "license": "ISC",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.1.0"
+  },
+  "install": {
+    "path": {
+      "css": "static/css",
+      "js": "static/js"
+    }
+  }
+}
