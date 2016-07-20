@@ -1,84 +1,101 @@
-var modes = { LISTEN:1, MARK:2, STUDY:3, MARKED:4 };
-var count = { LISTEN:1, MARK:2, STUDY:3, MARKED:4 };
+// action!
+// noinspection Eslint,JSUnusedAssignment
+let mode = modes.LISTEN;
+// noinspection Eslint
+$('#marker').hide();
+// noinspection Eslint
+resizeVideo();
 
-var tag = document.createElement('script');
+const modes = { LISTEN: 1, MARK: 2, STUDY: 3, MARKED: 4 };
+const count = { LISTEN: 1, MARK: 2, STUDY: 3, MARKED: 4 };
+
+const tag = document.createElement('script');
 
 tag.src = 'https://www.youtube.com/iframe_api';
-var firstScriptTag = document.getElementsByTagName('script')[0];
+const firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-var player;
-//noinspection JSUnusedGlobalSymbols
+let player;
+// noinspection Eslint,JSUnusedGlobalSymbols
 function onYouTubeIframeAPIReady() {
-    //noinspection JSUndeclaredVariable
-    width = $('#player').width();
-    //noinspection JSUndeclaredVariable
-    height = width * 0.5625;               // 16:9
+    // noinspection Eslint
+    const width = $('#player').width();
+    const height = width * 0.5625;               // 16:9
 
-    //noinspection JSUnresolvedVariable,SpellCheckingInspection,JSUnresolvedFunction
+    // noinspection JSUnresolvedVariable,JSUnresolvedFunction,Eslint
     player = new YT.Player('player', {
         width: width,
         height: height,
         videoId: 'Pf4A1Sl_OkI',
         // videoId: 'S0s2J4m5ITg',
         // videoId: 'Y9XqYAzbmTI',
-        playerVars: { 'autoplay': 0, 'controls': 0, 'showinfo': 0, 'rel': 0, 'hl':'en' },
+        playerVars: { autoplay: 0, controls: 0, showinfo: 0, rel: 0, hl: 'en' },
         events: {
-            'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
-        }
+            onReady: onPlayerReady,
+            onStateChange: onPlayerStateChange,
+        },
     });
 }
 
-//noinspection JSUnusedLocalSymbols
+// noinspection Eslint,JSUnusedLocalSymbols
 function onPlayerReady(event) {
+    // noinspection Eslint
     resizeVideo();
+    // noinspection Eslint
     listen_play();
 }
 
+// noinspection SpellCheckingInspection
 function resizeVideo() {
-    //noinspection JSUndeclaredVariable
-    width = $("#player").width();
-    //noinspection JSUndeclaredVariable
-    height = width * 0.5625;               // 16:9
-    $("#cover").css('height', height);
+    // noinspection Eslint
+    const width = $('#player').width();
+    const height = width * 0.5625;               // 16:9
+    // noinspection Eslint
+    $('#cover').css('height', height);
 
     // player may not be ready yet
     try {
-        //noinspection JSUnresolvedFunction
+        // noinspection JSUnresolvedFunction
         player.setSize(width, height);
-    }
-    catch(err) {
+    } catch (err) {
         // ignore
     }
 
-    $("#mark-button").css('width', width);
+    // noinspection Eslint
+    $('#mark-button').css('width', width);
 }
 
 
 /* LISTEN */
-$('#buttonListen').click(function () {
-    //noinspection JSUndeclaredVariable
+// noinspection Eslint
+$('#buttonListen').click(() => {
+    // noinspection JSUndeclaredVariable
     mode = modes.LISTEN;
+    // noinspection Eslint
     $('#control-button').hide();
     count.LISTEN = 0;
-    //noinspection JSUnresolvedFunction
+    // noinspection JSUnresolvedFunction
     player.seekTo(0);
+    // noinspection Eslint
     listen_play();
 });
 
-var listenCount = 0;
+let listenCount = 0;
+// noinspection Eslint
 function listen_play() {
-    //noinspection JSUndeclaredVariable
+    // noinspection JSUndeclaredVariable
     mode = modes.LISTEN;
+    // noinspection Eslint
     $('#msg1').text('Listen');
+    // noinspection Eslint
     $('#msg2').text('');
+    // noinspection Eslint
     $('#cover').css('opacity', '0');
     if (!count.LISTEN) {
         count.LISTEN = 0;
     }
     if (count.LISTEN) {
-        //noinspection JSUnresolvedFunction
+        // noinspection JSUnresolvedFunction
         player.playVideo();
     }
 }
@@ -86,6 +103,7 @@ function listen_play() {
 function onPlayerStateChange(event) {
     switch (mode) {
         case modes.LISTEN :
+            // noinspection Eslint
             listen_stateChange(event);
             break;
         case modes.MARK :
@@ -97,35 +115,30 @@ function onPlayerStateChange(event) {
         case modes.MARKED :
             // marked_stateChange(event);
             break;
-        default :
-            alert("onPlayerStateChange() unhandled " + mode);
-            break;
+        default : {
+            // noinspection Eslint
+            alert(`onPlayerStateChange() unhandled ${mode}`);
+        }
     }
 }
 
+// noinspection Eslint
 function listen_stateChange(event) {
-    //noinspection JSUnresolvedVariable
-    if (event.data == YT.PlayerState.ENDED){
+    // noinspection JSUnresolvedVariable, Eslint
+    if (event.data === YT.PlayerState.ENDED) {
+        // noinspection Eslint
         $('#msg1').text('Listen');
-        //noinspection SpellCheckingInspection
+        // noinspection SpellCheckingInspection,Eslint
         $('#msg2').text('Click to countinue');
-        //noinspection JSJQueryEfficiency
+        // noinspection JSJQueryEfficiency,Eslint
         $('#cover').css('opacity', '1');
-        //noinspection JSJQueryEfficiency
-        $('#cover').click(function () {
+        // noinspection JSJQueryEfficiency,Eslint
+        $('#cover').click(() => {
             listen_play();
         });
         count.LISTEN++;
         listenCount++;
     }
+    // noinspection Eslint
     $('#listenCounter').text(listenCount);
 }
-
-
-/* STUDY */
-
-
-// action!
-mode = modes.LISTEN;
-$("#marker").hide();
-resizeVideo();
