@@ -11,5 +11,11 @@ module.exports = {
                 "SwitchCase": 1
             }
         ],
+        "max-len": [
+            "off"
+        ],
+        "camelcase": [
+            "off"
+        ],
     }
 };
