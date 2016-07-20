@@ -1,5 +1,3 @@
-
-
 const modes = { LISTEN: 1, MARK: 2, STUDY: 3, MARKED: 4 };
 const count = { LISTEN: 1, MARK: 2, STUDY: 3, MARKED: 4 };
 
@@ -95,7 +93,7 @@ function listen_play() {
 }
 
 function onPlayerStateChange(event) {
-    //noinspection Eslint
+    // noinspection Eslint
     switch (mode) {
         case modes.LISTEN :
             // noinspection Eslint
