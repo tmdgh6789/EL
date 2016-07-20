@@ -1,10 +1,4 @@
-// action!
-// noinspection Eslint,JSUnusedAssignment
-let mode = modes.LISTEN;
-// noinspection Eslint
-$('#marker').hide();
-// noinspection Eslint
-resizeVideo();
+
 
 const modes = { LISTEN: 1, MARK: 2, STUDY: 3, MARKED: 4 };
 const count = { LISTEN: 1, MARK: 2, STUDY: 3, MARKED: 4 };
@@ -69,7 +63,7 @@ function resizeVideo() {
 /* LISTEN */
 // noinspection Eslint
 $('#buttonListen').click(() => {
-    // noinspection JSUndeclaredVariable
+    // noinspection JSUndeclaredVariable,Eslint
     mode = modes.LISTEN;
     // noinspection Eslint
     $('#control-button').hide();
@@ -83,7 +77,7 @@ $('#buttonListen').click(() => {
 let listenCount = 0;
 // noinspection Eslint
 function listen_play() {
-    // noinspection JSUndeclaredVariable
+    // noinspection JSUndeclaredVariable,Eslint
     mode = modes.LISTEN;
     // noinspection Eslint
     $('#msg1').text('Listen');
@@ -101,6 +95,7 @@ function listen_play() {
 }
 
 function onPlayerStateChange(event) {
+    //noinspection Eslint
     switch (mode) {
         case modes.LISTEN :
             // noinspection Eslint
@@ -142,3 +137,12 @@ function listen_stateChange(event) {
     // noinspection Eslint
     $('#listenCounter').text(listenCount);
 }
+
+
+// action!
+// noinspection Eslint,JSUnusedAssignment
+let mode = modes.LISTEN;
+// noinspection Eslint
+$('#marker').hide();
+// noinspection Eslint
+resizeVideo();
