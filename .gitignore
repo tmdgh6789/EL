@@ -13,7 +13,6 @@ typings
 !.idea/codeStyleSettings.xml
 !.idea/EL.iml
 !.idea/modules.xml
-!.idea/workspace.xml
 
 ## File-based project format:
 *.iws

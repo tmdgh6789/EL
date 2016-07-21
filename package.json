@@ -1,28 +1,29 @@
 {
-    "name": "el",
-    "version": "1.0.0",
-    "description": "EL",
-    "main": "app.js",
-    "dependencies": {
-        "ejs": "^2.4.2",
-        "express": "^4.14.0"
-    },
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "install": "bower install && typings install"
-    },
-    "repository": {
-        "type": "git",
-        "url": "http://intra.novonetworks.com:8073/ENG/EL.git"
-    },
-    "author": "",
-    "license": "ISC",
-    "devDependencies": {
-        "babel-eslint": "^6.1.2",
-        "eslint": "^3.1.1",
-        "eslint-config-airbnb-es5": "^1.0.9",
-        "eslint-plugin-jsx-a11y": "^2.0.1",
-        "eslint-plugin-react": "^5.2.2",
-        "typings": "^1.3.2"
-    }
+  "name": "el",
+  "version": "1.0.0",
+  "description": "EL",
+  "main": "app.js",
+  "dependencies": {
+    "ejs": "^2.4.2",
+    "express": "^4.14.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "bower install && typings install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://intra.novonetworks.com:8073/ENG/EL.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-eslint": "^6.1.2",
+    "bower": "^1.7.9",
+    "eslint": "^3.1.1",
+    "eslint-config-airbnb-es5": "^1.0.9",
+    "eslint-plugin-jsx-a11y": "^2.0.1",
+    "eslint-plugin-react": "^5.2.2",
+    "typings": "^1.3.2"
+  }
 }
