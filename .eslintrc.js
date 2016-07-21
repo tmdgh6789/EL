@@ -1,5 +1,5 @@
 module.exports = {
-    "extends": "airbnb",
+    "extends": "eslint-config-airbnb-es5",
     "plugins": [
         "react"
     ],
@@ -11,11 +11,9 @@ module.exports = {
                 "SwitchCase": 1
             }
         ],
-        "max-len": [
-            "off"
-        ],
-        "camelcase": [
-            "off"
-        ],
+        "space-before-function-paren": "off",
+        "func-names": "off",
+        "no-alert": "off",
+        "no-console": "off"
     }
 };

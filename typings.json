@@ -1,0 +1,16 @@
+{
+  "name": "el",
+  "dependencies": {},
+  "globalDependencies": {
+    "browser-sync": "registry:dt/browser-sync#0.0.0+20160524142403",
+    "express": "registry:dt/express#4.0.0+20160708185218",
+    "express-serve-static-core": "registry:dt/express-serve-static-core#4.0.0+20160715232503",
+    "gulp": "registry:dt/gulp#3.8.0+20160316155526",
+    "gulp-nodemon": "registry:dt/gulp-nodemon#0.0.0+20160316155526",
+    "jquery": "registry:dt/jquery#1.10.0+20160704162008",
+    "node": "registry:dt/node#6.0.0+20160720070758",
+    "orchestrator": "registry:dt/orchestrator#0.0.0+20160316155526",
+    "serve-static": "registry:dt/serve-static#0.0.0+20160606155157",
+    "youtube": "registry:dt/youtube#0.0.0+20160317120654"
+  }
+}
