@@ -2,10 +2,13 @@
   <dictionary name="orange">
     <words>
       <w>aint</w>
+      <w>autoplay</w>
       <w>doesnt</w>
       <w>gutil</w>
+      <w>iframe</w>
       <w>kidless</w>
       <w>nodemon</w>
+      <w>showinfo</w>
     </words>
   </dictionary>
 </component>

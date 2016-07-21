@@ -1,7 +1,6 @@
 /* global $, YT */
 
 var modes = { LISTEN: 1, MARK: 2, STUDY: 3, MARKED: 4 };
-var count = { LISTEN: 1, MARK: 2, STUDY: 3, MARKED: 4 };
 
 var SCRIPT = [
     { from: 1.9, to: 2.3, words: 'chick', audio: 'chick.ogg', level: 1 },
@@ -76,32 +75,6 @@ function resizeVideo() {
     $('#mark-button').css('width', width);
 }
 
-$('#buttonListen').click(function () {
-    mode = modes.LISTEN;
-    $('.control-button').hide();
-    count.LISTEN = 0;
-
-    player.seekTo(0, false);
-    listenPlay();
-});
-
-
-var listenCount = 0;
-var mode = modes.LISTEN;
-
-function listenPlay() {
-    mode = modes.LISTEN;
-    $('#msg1').text('Listen');
-    $('#msg2').text('');
-    $('#cover').css('opacity', '0');
-    if (!count.LISTEN) {
-        count.LISTEN = 0;
-    }
-
-    player.playVideo();
-}
-
-
 function onPlayerStateChange(event) {
     switch (mode) {
         case modes.LISTEN :
@@ -122,6 +95,30 @@ function onPlayerStateChange(event) {
     }
 }
 
+var mode = modes.LISTEN;
+
+
+/* LISTEN */
+
+$('#button-listen').click(function () {
+    mode = modes.LISTEN;
+    $('.control-button').hide();
+
+    player.seekTo(0, true);
+    listenPlay();
+});
+
+
+function listenPlay() {
+    mode = modes.LISTEN;
+    $('#msg1').text('Listen');
+    $('#msg2').text('');
+    $('#cover').css('opacity', '0');
+
+    player.playVideo();
+}
+
+var listenCount = 0;
 
 function listenStateChange(event) {
     if (event.data === YT.PlayerState.ENDED) {
@@ -133,18 +130,21 @@ function listenStateChange(event) {
         $cover.click(function () {
             listenPlay();
         });
-        count.LISTEN++;
         listenCount++;
     }
     $('#listen-counter').text(listenCount);
 }
 
-$('#buttonStudy').click(function () {
+
+/* STUDY */
+
+$('#button-study').click(function () {
     var $prevButton = $('#prev-button');
 
+    mode = modes.STUDY;
     resizeVideo();
     player.pauseVideo();
-    mode = modes.STUDY;
+    player.seekTo(0, true);
 
     $('#cover').css('opacity', '1');
     $prevButton.css('visibility', 'visible');
@@ -152,6 +152,7 @@ $('#buttonStudy').click(function () {
     $('#skip-button').css('visibility', 'visible');
     $('#msg1').text('Study');
     $('#msg2').text('');
+
     studyStart();
 });
 
@@ -161,7 +162,6 @@ function studyStart() {
         var step = studyStep();
         // study_opac(step);
         studyPlay(step);
-        console.log(step);
     }
 }
 
@@ -173,40 +173,30 @@ function studyStep(step) {
         currentStep = 0;
     } else if (currentStep > SCRIPT.length) {
         currentStep = 0;
+    } else {
+        currentStep++;
     }
 
     studyPlay(currentStep);
 }
 
-// function study_opac() {
-//     var opac = 0;
-//     $('#msg1').css('opacity', opac);
-//     opac += 0.2;
-// }
+/* function study_opac() {
+    var opac = 0;
+    $('#msg1').css('opacity', opac);
+    opac += 0.2;
+} */
 
 function studyPlay(step) {
     var $audio = $('#audio');
     $audio.empty();
     $audio.append(
         '<audio id="audio-now">' +
-        '<source src="audio/' + SCRIPT[step].audio + '" type="audio/ogg">' +
+            '<source src="audio/' + SCRIPT[step].audio + '" type="audio/ogg">' +
         '</audio>');
-
+    var audioNow = document.getElementById('audio-now');
+    audioNow.play();
     $('#msg1').text(SCRIPT[step].words);
 
-    studyRepeat(step);
-}
-
-function studyRepeat(step) {
-    console.log(step);
-    if (!step) {
-        // ignore
-    } else {
-        var audioNow = document.getElementById('audio-now');
-        audioNow.play();
-        currentStep = step;
-        currentStep++;
-    }
 }
 
 $('#marker').hide();
