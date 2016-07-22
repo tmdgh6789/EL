@@ -127,9 +127,13 @@ function listenStateChange(event) {
         $('#msg1').text('Listen');
         $('#msg2').text('Click to countinue');
         $cover.css('opacity', '1');
-        $cover.click(function () {
-            listenPlay();
-        });
+        if (mode === modes.LISTEN) {
+            $cover.click(function () {
+                listenPlay();
+            });
+        } else {
+            player.pauseVideo();
+        }
         listenCount++;
     }
     $('#listen-counter').text(listenCount);
@@ -159,9 +163,8 @@ $('#button-study').click(function () {
 
 function studyStart() {
     if (mode === modes.STUDY) {
-        var step = studyStep();
+        studyStep();
         // study_opac(step);
-        studyPlay(step);
     }
 }
 
@@ -173,8 +176,6 @@ function studyStep(step) {
         currentStep = 0;
     } else if (currentStep > SCRIPT.length) {
         currentStep = 0;
-    } else {
-        currentStep++;
     }
 
     studyPlay(currentStep);
@@ -187,18 +188,21 @@ function studyStep(step) {
 } */
 
 function studyPlay(step) {
+    mode = modes.STUDY;
     var $audio = $('#audio');
-    $audio.empty();
+    if ($audio.children().length > 0) {
+        $audio.empty();
+    }
     $audio.append(
         '<audio id="audio-now">' +
             '<source src="audio/' + SCRIPT[step].audio + '" type="audio/ogg">' +
         '</audio>');
-    var audioNow = document.getElementById('audio-now');
-    audioNow.play();
     $('#msg1').text(SCRIPT[step].words);
+    var audioNow = document.getElementById('audio-now');
 
+    audioNow.play();
 }
+
 
 $('#marker').hide();
 resizeVideo();
-
