@@ -1,2 +1,2 @@
 ## English Listening tool by Youtube
-#### gulp를 실행해주세요!
+#### npm install 후 npm start 를 실행해주세요!
