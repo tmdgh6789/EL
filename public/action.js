@@ -106,6 +106,8 @@ $('#button-listen').click(function () {
 
     player.seekTo(0, true);
     listenPlay();
+    var audioNow = document.getElementById('audio-now');
+    studyStop(audioNow);
 });
 
 
@@ -171,25 +173,25 @@ function studyStart() {
 var currentStep;
 
 function studyStep(step) {
+    console.log('studystep : ' + currentStep);
     currentStep = step;
     if (!currentStep) {
         currentStep = 0;
-    } else if (currentStep > SCRIPT.length) {
+    } else if (currentStep === SCRIPT.length) {
         currentStep = 0;
     }
 
-    studyPlay(currentStep);
+    studyInit(currentStep);
 }
 
-/* function study_opac() {
-    var opac = 0;
-    $('#msg1').css('opacity', opac);
-    opac += 0.2;
+/* function studyOpacity(step) {
+    stepLevel = step - step + 1;
 } */
 
-function studyPlay(step) {
+function studyInit(step) {
     mode = modes.STUDY;
     var $audio = $('#audio');
+    var $msg1 = $('#msg1');
     if ($audio.children().length > 0) {
         $audio.empty();
     }
@@ -197,10 +199,34 @@ function studyPlay(step) {
         '<audio id="audio-now">' +
             '<source src="audio/' + SCRIPT[step].audio + '" type="audio/ogg">' +
         '</audio>');
-    $('#msg1').text(SCRIPT[step].words);
-    var audioNow = document.getElementById('audio-now');
 
-    audioNow.play();
+    var audioNow = document.getElementById('audio-now');
+    $msg1.text(SCRIPT[step].words);
+
+    if (!opaStep) { opaStep = 2; }
+    studyPlay(audioNow, opaStep, step);
+}
+var opaStep;
+function studyPlay(audioNow, opaS, step) {
+    opaStep = opaS;
+    if (opaStep < 8) {
+        audioNow.play();
+        opaStep++;
+    } else if (opaStep >= 8) {
+        opaStep = 1;
+        console.log('studyplay : ' + step);
+        nextStep(step);
+    }
+}
+
+function nextStep(step) {
+    currentStep = step;
+    currentStep++;
+    studyStep(currentStep);
+}
+function studyStop(audioNow) {
+    $('#msg1').text('');
+    audioNow.pause();
 }
 
 
