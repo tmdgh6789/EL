@@ -37,9 +37,9 @@ function onYouTubeIframeAPIReady() {
     player = new YT.Player('player', {
         width: width,
         height: height,
-        videoId: 'Pf4A1Sl_OkI',
+        // videoId: 'Pf4A1Sl_OkI',
         // videoId: 'S0s2J4m5ITg',
-        // videoId: 'Y9XqYAzbmTI',
+        videoId: 'D5UToOanKPQ',
         playerVars: {
             autoplay: 0,
             controls: 0,
@@ -187,7 +187,7 @@ function studyPlay() {
     if (opaStep < 7 || !opaStep) {
         $audio.empty();
         $audio.append(
-            '<audio id="audio-now" controls>' +
+            '<audio id="audio-now">' +
             '<source src="audio/' + SCRIPT[currentStep].audio + '" type="audio/ogg">' +
             '</audio>');
         var audioNow = document.getElementById('audio-now');
