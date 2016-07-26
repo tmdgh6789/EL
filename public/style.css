@@ -74,12 +74,12 @@
     background-color: black;
 }
 
-#msg1 {
+#mode-title {
     font-size: 28px;
     color: white;
 }
 
-#msg2 {
+#mode-des {
     font-size: 16px;
     color: rgb(160, 160, 160);
 }

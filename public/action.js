@@ -113,8 +113,8 @@ $('#button-listen').click(function () {
 
 function listenPlay() {
     mode = modes.LISTEN;
-    $('#msg1').text('Listen');
-    $('#msg2').text('');
+    $('#mode-title').text('Listen');
+    $('#mode-des').text('');
     $('#cover').css('opacity', '0');
 
     player.playVideo();
@@ -126,15 +126,13 @@ function listenStateChange(event) {
     if (event.data === YT.PlayerState.ENDED) {
         var $cover = $('#cover');
 
-        $('#msg1').text('Listen');
-        $('#msg2').text('Click to countinue');
+        $('#mode-title').text('Listen');
+        $('#mode-des').text('Click to countinue');
         $cover.css('opacity', '1');
         if (mode === modes.LISTEN) {
             $cover.click(function () {
                 listenPlay();
             });
-        } else {
-            player.pauseVideo();
         }
         listenCount++;
     }
@@ -143,6 +141,9 @@ function listenStateChange(event) {
 
 
 /* STUDY */
+
+var currentStep;
+var opaStep;
 
 $('#button-study').click(function () {
     var $prevButton = $('#prev-button');
@@ -156,76 +157,86 @@ $('#button-study').click(function () {
     $prevButton.css('visibility', 'visible');
     $prevButton.css('margin-top', '349px');
     $('#skip-button').css('visibility', 'visible');
-    $('#msg1').text('Study');
-    $('#msg2').text('');
+    $('#mode-title').text('Study');
+    $('#mode-des').text('');
 
     studyStart();
 });
 
-
 function studyStart() {
     if (mode === modes.STUDY) {
         studyStep();
-        // study_opac(step);
     }
 }
 
-var currentStep;
-
-function studyStep(step) {
-    console.log('studystep : ' + currentStep);
-    currentStep = step;
+function studyStep() {
     if (!currentStep) {
         currentStep = 0;
     } else if (currentStep === SCRIPT.length) {
         currentStep = 0;
     }
 
-    studyInit(currentStep);
+    studyPlay();
 }
 
-/* function studyOpacity(step) {
-    stepLevel = step - step + 1;
-} */
-
-function studyInit(step) {
+function studyPlay() {
     mode = modes.STUDY;
+    $('#mode-title').text('');
     var $audio = $('#audio');
-    var $msg1 = $('#msg1');
-    if ($audio.children().length > 0) {
+    var $msgStudy = $('#msg-study');
+    if (opaStep < 7 || !opaStep) {
         $audio.empty();
+        $audio.append(
+            '<audio id="audio-now" controls>' +
+            '<source src="audio/' + SCRIPT[currentStep].audio + '" type="audio/ogg">' +
+            '</audio>');
+        var audioNow = document.getElementById('audio-now');
+        $msgStudy.text(SCRIPT[currentStep].words);
     }
-    $audio.append(
-        '<audio id="audio-now">' +
-            '<source src="audio/' + SCRIPT[step].audio + '" type="audio/ogg">' +
-        '</audio>');
 
-    var audioNow = document.getElementById('audio-now');
-    $msg1.text(SCRIPT[step].words);
+    if (!opaStep) {
+        opaStep = 0;
+    }
 
-    if (!opaStep) { opaStep = 2; }
-    studyPlay(audioNow, opaStep, step);
-}
-var opaStep;
-function studyPlay(audioNow, opaS, step) {
-    opaStep = opaS;
-    if (opaStep < 8) {
-        audioNow.play();
+    if (opaStep < 6) {
+        if (opaStep < 3) {
+            $msgStudy.css('opacity', 0);
+            audioNow.play();
+        } else {
+            var o = (1 / (8 - (opaStep * 1.5))) + opaStep  * 0.05;
+            $msgStudy.css('opacity', o);
+            audioNow.play();
+        }
         opaStep++;
-    } else if (opaStep >= 8) {
-        opaStep = 1;
-        console.log('studyplay : ' + step);
-        nextStep(step);
+        if (opaStep > 5) {
+            opaStep = 0;
+            currentStep++;
+        }
     }
 }
 
-function nextStep(step) {
-    currentStep = step;
-    currentStep++;
-    studyStep(currentStep);
-}
+$('#skip-button').click(function () {
+    if (currentStep < SCRIPT.length) {
+        currentStep++;
+    } else if (currentStep === SCRIPT.length) {
+        currentStep = 0;
+    }
+    opaStep = 0;
+    studyStep();
+});
+
+$('#prev-button').click(function () {
+    if (currentStep > 0) {
+        currentStep--;
+    } else if (currentStep === 0) {
+        currentStep = SCRIPT.length - 1;
+    }
+    opaStep = 0;
+    studyStep();
+});
+
 function studyStop(audioNow) {
-    $('#msg1').text('');
+    $('#mode-title').text('');
     audioNow.pause();
 }
 
