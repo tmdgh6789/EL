@@ -10,6 +10,6 @@
 1. [zip 파일](http://intra.novonetworks.com:8073/ENG/EL/repository/archive.zip?ref=master) 또는 `git clone http://intra.novonetworks.com:8073/ENG/EL.git` 입력해서 다운
 
 ## project 실행
-nodejs 실행 후
-`npm install` 입력한 뒤
-`npm start` 입력
+1. nodejs 실행
+2. project 를 다운받은 경로에서 `npm install` 실행
+3. `npm start` 실행
