@@ -1,6 +1,12 @@
 /* global $, YT */
 
+var mode;
+
 var modes = { LISTEN: 1, MARK: 2, STUDY: 3, MARKED: 4 };
+
+var states;
+
+var study = { COVER: 1, PLAY: 2, PLAY_AUDIO: 3 };
 
 var SCRIPT = [
     { from: 1.9, to: 2.3, words: 'chick', audio: 'chick.ogg', level: 1.0 },
@@ -95,8 +101,20 @@ function onPlayerStateChange(event) {
     }
 }
 
-var mode;
-
+$('#cover').click(function () {
+    var $audioNow = $('#audio-now');
+    var $audio = $('#audio');
+    if (mode === modes.LISTEN) {
+        studyStop($audioNow);
+        listenPlay();
+    } else if (mode === modes.STUDY && states === study.COVER) {
+        if (!$audio.children().length > 0) {
+            studyStop($audioNow);
+        }
+        $('#mode-des').text('');
+        studyStep();
+    }
+});
 
 /* LISTEN */
 
@@ -106,7 +124,7 @@ $('#button-listen').click(function () {
     $('.control-button').css('visibility', 'hidden');
     $('.study-mode').css('visibility', 'hidden');
 
-    player.seekTo(0, true);
+    listenStop();
     listenPlay();
     var audioNow = $('#audio-now');
     studyStop(audioNow);
@@ -132,16 +150,16 @@ function listenStateChange(event) {
         $('#mode-des').text('Click to continue');
         $('#msg-study').text('');
         $cover.css('opacity', '1');
-        if (mode === modes.LISTEN) {
-            $cover.click(function () {
-                listenPlay();
-            });
-        }
+
         listenCount++;
     }
     $('#listen-counter').text(listenCount);
 }
 
+function listenStop() {
+    player.seekTo(0, true);
+    player.pauseVideo();
+}
 
 /* STUDY */
 
@@ -156,6 +174,7 @@ $('#button-study').click(function () {
 
 function studyClick() {
     mode = modes.STUDY;
+    states = study.PLAY;
     resizeVideo();
     player.pauseVideo();
     player.seekTo(0, true);
@@ -189,6 +208,7 @@ function studyStep() {
 function studyPlay() {
     if (mode === modes.STUDY) {
         mode = modes.STUDY;
+        states = study.PLAY_AUDIO;
         $('#mode-title').text('');
         var $audio = $('#audio');
         var $msgStudy = $('#msg-study');
@@ -234,7 +254,7 @@ function audioOnEnded() {
         $('#mode-title').text('Study');
         $('#mode-des').text('Click to continue');
         $('#msg-study').text('');
-        $('#audio-now').pause();
+        states = study.COVER;
     }
 }
 
@@ -302,7 +322,9 @@ function studyStop(audioNow) {
     $('#mode-title').text('');
     currentStep = 0;
     opaStep = 0;
-    audioNow.pause();
+    if (!audioNow) {
+        audioNow.pause();
+    }
 }
 
 
