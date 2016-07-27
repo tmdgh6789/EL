@@ -3,20 +3,20 @@
 var modes = { LISTEN: 1, MARK: 2, STUDY: 3, MARKED: 4 };
 
 var SCRIPT = [
-    { from: 1.9, to: 2.3, words: 'chick', audio: 'chick.ogg', level: 1 },
+    { from: 1.9, to: 2.3, words: 'chick', audio: 'chick.ogg', level: 1.0 },
     { from: 5.5, to: 5.8, words: 'gay', audio: 'gay.ogg', level: 1.1 },
     { from: 8.0, to: 8.7, words: 'short man', audio: 'short_man.ogg', level: 1.5 },
     { from: 10.4, to: 11.1, words: 'cute car', audio: 'cute_car.ogg', level: 1.5 },
     { from: 11.9, to: 12.7, words: 'slow car', audio: 'slow_car.ogg', level: 1.5 },
     { from: 13.0, to: 15.1, words: 'single young professional', audio: 'single_young_professional.ogg', level: 1.7 },
-    { from: 16.5, to: 17.4, words: 'street cred', audio: 'street_cred.ogg', level: 3 },
-    { from: 17.7, to: 18.9, words: "ain't", audio: 'aint.ogg', level: 3 },
-    { from: 17.7, to: 18.9, words: 'hip hop', audio: 'hip_hop.ogg', level: 1 },
+    { from: 16.5, to: 17.4, words: 'street cred', audio: 'street_cred.ogg', level: 3.0 },
+    { from: 17.7, to: 18.9, words: "ain't", audio: 'aint.ogg', level: 3.0 },
+    { from: 17.7, to: 18.9, words: 'hip hop', audio: 'hip_hop.ogg', level: 1.0 },
     { from: 19.1, to: 19.6, words: 'kidless', audio: 'kidless.ogg', level: 1.4 },
-    { from: 19.9, to: 20.3, words: 'cute', audio: 'cute.ogg', level: 1 },
-    { from: 20.5, to: 21.2, words: 'small', audio: 'small.ogg', level: 1 },
+    { from: 19.9, to: 20.3, words: 'cute', audio: 'cute.ogg', level: 1.0 },
+    { from: 20.5, to: 21.2, words: 'small', audio: 'small.ogg', level: 1.0 },
     { from: 22.4, to: 23.1, words: "doesn't care", audio: 'doesnt_care.ogg', level: 1.5 },
-    { from: 23.2, to: 24.4, words: 'what you call it', audio: 'what_you_call_it.ogg', level: 2 }
+    { from: 23.2, to: 24.4, words: 'what you call it', audio: 'what_you_call_it.ogg', level: 2.0 }
 ];
 
 
@@ -104,10 +104,11 @@ $('#button-listen').click(function () {
     mode = modes.LISTEN;
     resizeVideo();
     $('.control-button').css('visibility', 'hidden');
+    $('.study-mode').css('visibility', 'hidden');
 
     player.seekTo(0, true);
     listenPlay();
-    var audioNow = document.getElementById('audio-now');
+    var audioNow = $('#audio-now');
     studyStop(audioNow);
 });
 
@@ -148,6 +149,12 @@ var currentStep;
 var opaStep;
 
 $('#button-study').click(function () {
+    $('#time-order').css('visibility', 'visible');
+    $('#level-order').css('visibility', 'visible');
+    studyClick();
+});
+
+function studyClick() {
     mode = modes.STUDY;
     resizeVideo();
     player.pauseVideo();
@@ -161,10 +168,11 @@ $('#button-study').click(function () {
     $('#mode-title').text('Study');
     $('#mode-des').text('');
 
-    studyStart();
-});
+    if ($('#audio').children().length) {
+        var audioNow = $('#audio-now');
+        studyStop(audioNow);
+    }
 
-function studyStart() {
     studyStep();
 }
 
@@ -230,21 +238,61 @@ function audioOnEnded() {
     }
 }
 
-$('#skip-button').click(function () {
-    if (currentStep < SCRIPT.length) {
-        currentStep++;
-    } else if (currentStep === SCRIPT.length) {
-        currentStep = 0;
-    }
-    opaStep = 0;
-    studyStep();
-});
-
 $('#prev-button').click(function () {
     if (currentStep > 0) {
         currentStep--;
     } else if (currentStep === 0) {
         currentStep = SCRIPT.length - 1;
+    }
+    opaStep = 0;
+    studyStep();
+});
+
+$('#level-order').click(function () {
+    SCRIPT.sort(function (a, b) {
+        if (a.level < b.level) {
+            return -1;
+        } else if (a.level > b.level) {
+            return 1;
+        }
+        return -1;
+    });
+
+    for (var i = 0; i < SCRIPT.length; i++) {
+        console.log(SCRIPT[i].words + ' ' + SCRIPT[i].level );
+    }
+    console.log('\n');
+
+    var audioNow = $('#audio-now');
+    studyStop(audioNow);
+    studyClick();
+});
+
+$('#time-order').click(function () {
+    SCRIPT.sort(function (a, b) {
+        if (a.from < b.from) {
+            return -1;
+        } else if (a.from > b.from) {
+            return 1;
+        }
+        return 0;
+    });
+
+    for (var i = 0; i < SCRIPT.length; i++) {
+        console.log(SCRIPT[i].words + ' ' + SCRIPT[i].level );
+    }
+
+    console.log('\n');
+    var audioNow = $('#audio-now');
+    studyStop(audioNow);
+    studyClick();
+});
+
+$('#skip-button').click(function () {
+    if (currentStep < SCRIPT.length) {
+        currentStep++;
+    } else if (currentStep === SCRIPT.length) {
+        currentStep = 0;
     }
     opaStep = 0;
     studyStep();
