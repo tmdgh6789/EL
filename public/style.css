@@ -91,6 +91,7 @@
     flex-direction: column;
     -webkit-justify-content: center;
     justify-content: center;
+    cursor: default;
 }
 
 #markbar {
@@ -105,6 +106,7 @@
 .mark-1 {
     height: 3px;
     background-color: #ff2031;
+    cursor: pointer;
 
     position: relative;                /* you need this to use z-index */
     z-index: 0;
@@ -113,11 +115,14 @@
 .mark-0 {
     height: 3px;
     background-color: #dbdbdb;
+    cursor: pointer;
 }
 
 #mark-position {
     width: 12px;
     height: 12px;
+    cursor: pointer;
+
     background: #ebebeb;
     background-image: -webkit-linear-gradient(top, #ebebeb, #bebebe);
     background-image: -moz-linear-gradient(top, #ebebeb, #bebebe);
@@ -131,7 +136,7 @@
     margin: -17px 0 0 7px;
 
     position: relative;                /* you need this to use z-index */
-z-index: 10;
+    z-index: 10;
 }
 
 #mark-button-panel {
@@ -142,6 +147,8 @@ z-index: 10;
 }
 
 .listen-button {
+    cursor: pointer;
+
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     border-radius: 3px;
@@ -152,6 +159,7 @@ z-index: 10;
 
 .mark-button-normal {
     text-align: center;
+    cursor: pointer;
 
     background: #3498db;
     background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
@@ -171,6 +179,8 @@ z-index: 10;
 }
 
 .mark-button-normal:hover {
+    cursor: pointer;
+
     background: #3cb0fd;
     background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
     background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
@@ -182,6 +192,7 @@ z-index: 10;
 
 .mark-button-continue {
     text-align: center;
+    cursor: pointer;
 
     border: 1px solid #3498db;
 
@@ -199,6 +210,7 @@ z-index: 10;
 #clear-button {
     width: 120px;
     text-align: center;
+    cursor: pointer;
 
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
@@ -219,6 +231,7 @@ z-index: 10;
 .debug-button {
     width: 120px;
     text-align: center;
+    cursor: pointer;
 
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
@@ -236,6 +249,7 @@ z-index: 10;
 .button-mode {
     width: 120px;
     text-align: center;
+    cursor: pointer;
 
     background: #3498db;
     background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
@@ -262,6 +276,7 @@ z-index: 10;
     background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
     background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
     text-decoration: none;
+    cursor: pointer;
 }
 
 #listen-counter {
@@ -289,6 +304,7 @@ z-index: 10;
     width: 120px;
     height: 16px;
     text-align: center;
+    cursor: pointer;
 
     -webkit-border-radius: 30px;
     -moz-border-radius: 30px;
@@ -304,6 +320,8 @@ z-index: 10;
 }
 
 .control-button:hover {
+    cursor: pointer;
+
     background: #3cb0fd;
     background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
     background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
@@ -317,6 +335,7 @@ z-index: 10;
     float: right;
     width: 100px;
     text-align: center;
+    cursor: pointer;
 
     background: #65a3c6;
     background-image: -webkit-linear-gradient(top, #65a3c6, #3d8c97);

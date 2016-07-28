@@ -90,7 +90,7 @@ function onPlayerStateChange(event) {
             // mark_stateChange(event);
             break;
         case modes.STUDY :
-            // study_stateChange(event);
+            studyStateChange(event);
             break;
         case modes.MARKED :
             // marked_stateChange(event);
@@ -102,32 +102,45 @@ function onPlayerStateChange(event) {
 }
 
 $('#cover').click(function () {
-    var $audioNow = $('#audio-now');
     var $audio = $('#audio');
-    if (mode === modes.LISTEN) {
-        studyStop($audioNow);
-        listenPlay();
-    } else if (mode === modes.STUDY && states === study.COVER) {
-        if (!$audio.children().length > 0) {
-            studyStop($audioNow);
-        }
-        $('#mode-des').text('');
-        studyStep();
+    switch (mode) {
+        case modes.LISTEN :
+            studyStop();
+            listenPlay();
+            break;
+        case modes.MARK :
+            break;
+        case modes.MARKED :
+            break;
+        case modes.STUDY :
+            if (states === study.COVER) {
+                if (!$audio.children().length > 0) {
+                    studyStop();
+                }
+                $('#mode-des').text('');
+                studyStep();
+            }
+            break;
+        default :
+            alert('COVER CLICK ERROR!');
+            break;
     }
 });
 
 /* LISTEN */
+
+var listenCount = 0;
 
 $('#button-listen').click(function () {
     mode = modes.LISTEN;
     resizeVideo();
     $('.control-button').css('visibility', 'hidden');
     $('.study-mode').css('visibility', 'hidden');
+    $('#marker').hide();
 
+    studyStop();
     listenStop();
     listenPlay();
-    var audioNow = $('#audio-now');
-    studyStop(audioNow);
 });
 
 
@@ -139,8 +152,6 @@ function listenPlay() {
 
     player.playVideo();
 }
-
-var listenCount = 0;
 
 function listenStateChange(event) {
     if (event.data === YT.PlayerState.ENDED) {
@@ -161,18 +172,123 @@ function listenStop() {
     player.pauseVideo();
 }
 
+
+/* MARK */
+
+$('#button-mark').click(function () {
+    mode = modes.MARK;
+    listenStop();
+    studyStop();
+    resizeVideo();
+    var $markButton = $('#mark-button');
+
+    var duration = player.getDuration();
+    var width = $('#player').width();
+
+    var elem = document.getElementById('mark-position');
+    var pos = 0;
+    var id = setInterval(frame, duration);
+    function frame() {
+        if (pos === width - 25) {
+            clearInterval(id);
+        } else {
+            pos++;
+            elem.style.left = pos + 'px';
+        }
+    }
+
+    $('#cover').css('opacity', '1');
+    $('.control-button').css('visibility', 'hidden');
+    $('.study-mode').css('visibility', 'hidden');
+    $('#marker').show();
+
+    $('#mode-title').text('Mark');
+    $('#mode-des').text('');
+    $('#msg-study').text('');
+    $markButton.text('press to mark');
+    $markButton.attr('class', 'mark-button-normal');
+    player.playVideo();
+});
+
+var $markButtonNormal = $('.mark-button-normal');
+
+$markButtonNormal.mousedown(function () {
+    var startTime = player.getCurrentTime() - 0.5;
+    $('#start-time').text('test start time : ' + startTime);
+});
+
+$markButtonNormal.mouseup(function () {
+    var endTime = player.getCurrentTime() + 0.5;
+    $('#end-time').text('test end time : ' + endTime);
+});
+
+/*
+/!* STOPWATCH *!/
+
+var h1 = document.getElementsByTagName('h1')[0];
+var start = document.getElementById('start');
+var stop = document.getElementById('stop');
+var clear = document.getElementById('clear');
+var milliseconds = 0;
+var seconds = 0;
+var minutes = 0;
+var t;
+var timerRunning = false;
+
+function add() {
+    timerRunning = true;
+    milliseconds++;
+    if (milliseconds >= 600) {
+        milliseconds = 0;
+        seconds++;
+        if (seconds >= 60) {
+            seconds = 0;
+            minutes++;
+        }
+    }
+
+
+    h1.textContent = minutes  + ':' + seconds + ':' + milliseconds;
+
+    timer();
+}
+
+function timer() {
+    t = setTimeout(add, 0);
+}
+
+/!* Start button *!/
+$('#start').click(function () {
+    if (timerRunning) {
+        clearTimeout(t);
+    }
+    timer();
+});
+
+/!* Stop button *!/
+$('#stop').click(function () {
+    clearTimeout(t);
+});
+
+/!* Clear button *!/
+$('#clear').click(function () {
+    h1.textContent = '0:0:0';
+    milliseconds = 0;
+    seconds = 0;
+    minutes = 0;
+});
+*/
+
+
 /* STUDY */
 
 var currentStep;
 var opacityStep;
-
 $('#button-study').click(function () {
-    $('#time-order').css('visibility', 'visible');
-    $('#level-order').css('visibility', 'visible');
-    studyClick();
+    studyStateChange();
 });
 
-function studyClick() {
+function studyStateChange() {
     mode = modes.STUDY;
     states = study.PLAY;
     resizeVideo();
@@ -181,17 +297,16 @@ function studyClick() {
     currentStep = 0;
     opacityStep = 0;
 
+    $('#marker').hide();
+    $('#time-order').css('visibility', 'visible');
+    $('#level-order').css('visibility', 'visible');
     $('#cover').css('opacity', '1');
     $('#prev-button').css('margin-top', '349px');
     $('.control-button').css('visibility', 'visible');
     $('#mode-title').text('Study');
     $('#mode-des').text('');
 
-    if ($('#audio').children().length) {
-        var audioNow = $('#audio-now');
-        studyStop(audioNow);
-    }
-
+    studyStop();
     studyStep();
 }
 
@@ -215,40 +330,47 @@ function studyPlay() {
         if (opacityStep < 7 || !opacityStep) {
             $audio.empty();
             $audio.append(
-                '<audio id="audio-now" onended="timedCount()">' +
+                '<audio id="audio-now" onended="timeCount()">' +
                 '<source src="audio/' + SCRIPT[currentStep].audio + '" type="audio/ogg">' +
                 '</audio>');
             var audioNow = document.getElementById('audio-now');
             $msgStudy.text(SCRIPT[currentStep].words);
         }
 
-        if (!opacityStep) {
-            opacityStep = 0;
-        }
+        opacitySet();
 
-        if (opacityStep < 6) {
-            if (opacityStep < 2) {
-                $msgStudy.css('opacity', 0);
-                audioNow.play();
-            } else {
-                var o = (1 / (8 - (opacityStep * 1.5))) + opacityStep * 0.1;
-                $msgStudy.css('opacity', o);
-                audioNow.play();
-            }
-            opacityStep++;
-            if (opacityStep > 5) {
-                opacityStep = 0;
-                currentStep++;
-            }
+        audioNow.play();
+
+        opacityStep++;
+
+        if (opacityStep > 5) {
+            opacityStep = 0;
+            currentStep++;
         }
     }
 }
 
-function timedCount() {
+function opacitySet() {
+    var $msgStudy = $('#msg-study');
+
+    if (!opacityStep) {
+        opacityStep = 0;
+    }
+    if (opacityStep < 6) {
+        if (opacityStep < 2) {
+            $msgStudy.css('opacity', 0);
+        } else {
+            var o = (1 / (8 - (opacityStep * 1.5))) + opacityStep * 0.1;
+            $msgStudy.css('opacity', o);
+        }
+    }
+}
+
+function timeCount() {
     if (states === study.PLAY_AUDIO) {
         setTimeout(function () {
             audioOnEnded();
-        }, 1000);
+        }, 1500);
     }
 }
 function audioOnEnded() {
@@ -263,6 +385,7 @@ function audioOnEnded() {
 }
 
 $('#prev-button').click(function () {
+    $('#mode-des').text('');
     if (currentStep > 0) {
         currentStep--;
     } else if (currentStep === 0) {
@@ -273,6 +396,7 @@ $('#prev-button').click(function () {
 });
 
 $('#skip-button').click(function () {
+    $('#mode-des').text('');
     if (currentStep < SCRIPT.length) {
         currentStep++;
     } else if (currentStep === SCRIPT.length) {
@@ -292,14 +416,8 @@ $('#level-order').click(function () {
         return -1;
     });
 
-    for (var i = 0; i < SCRIPT.length; i++) {
-        console.log(SCRIPT[i].words + ' ' + SCRIPT[i].level );
-    }
-    console.log('\n');
-
-    var audioNow = $('#audio-now');
-    studyStop(audioNow);
-    studyClick();
+    studyStop();
+    studyStateChange();
 });
 
 $('#time-order').click(function () {
@@ -312,23 +430,15 @@ $('#time-order').click(function () {
         return 0;
     });
 
-    for (var i = 0; i < SCRIPT.length; i++) {
-        console.log(SCRIPT[i].words + ' ' + SCRIPT[i].level );
-    }
-
-    console.log('\n');
-    var audioNow = $('#audio-now');
-    studyStop(audioNow);
-    studyClick();
+    studyStop();
+    studyStateChange();
 });
 
-function studyStop(audioNow) {
+function studyStop() {
     $('#mode-title').text('');
     currentStep = 0;
     opacityStep = 0;
-    if (!audioNow) {
-        audioNow.pause();
-    }
+    $('#audio').empty();
 }
 
 
