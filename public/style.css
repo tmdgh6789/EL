@@ -133,7 +133,7 @@
     -moz-border-radius: 7px;
     border-radius: 7px;
     padding: 0;
-    margin: -17px 0 0 7px;
+    margin: -7px 7px 0 7px;
 
     position: relative;                /* you need this to use z-index */
     z-index: 10;

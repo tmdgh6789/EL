@@ -8,6 +8,7 @@
 node_modules/
 public/components/
 typings
+temp/
 
 !.idea/dictionaries
 !.idea/codeStyleSettings.xml
