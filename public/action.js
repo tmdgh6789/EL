@@ -77,6 +77,7 @@ function resizeVideo() {
     } catch (err) {
         // ignore
     }
+    markbarDraw();
     $('#mark-button').css('width', width);
 }
 
@@ -89,7 +90,7 @@ function onPlayerStateChange(event) {
             // mark_stateChange(event);
             break;
         case modes.STUDY :
-            studyStateChange(event);
+            studyStart(event);
             break;
         case modes.MARKED :
             // marked_stateChange(event);
@@ -105,7 +106,7 @@ function onPlayerStateChange(event) {
 var clock;
 
 function clockStart() {
-    clock = setTimeout(actionClock, 50);
+    clock = setTimeout(actionClock, 0);
 }
 
 function clockStop() {
@@ -119,7 +120,7 @@ function clockRestart() {
 }
 
 function actionClock() {
-    clock = setTimeout(actionClock, 50);
+    clock = setTimeout(actionClock, 0);
 
     switch (mode) {
         case modes.LISTEN :
@@ -215,8 +216,10 @@ function listenStop() {
 
 /* MARK */
 
-var markmode;
-var markmodes = { COVER: 0, PLAY: 1, PAUSE: 2, STOP: 3 };
+var markMode;
+var markModes = { COVER: 0, PLAY: 1, PAUSE: 2, STOP: 3 };
+var markedDown = [];
+var markedUp = [];
 
 $('#button-mark').click(function () {
     markStop();
@@ -228,8 +231,8 @@ $('#button-mark').click(function () {
 
 function markStart() {
     mode = modes.MARK;
-    markmode = markmodes.COVER;
-    mark.countdown = 10;
+    markMode = markModes.COVER;
+    mark.countDown = 10;
     $('#mode-title').text('Mark');
     $('#mode-des').text('');
     $('#msg-study').text('');
@@ -247,32 +250,38 @@ function markStart() {
 }
 
 function markPlay() {
-    $('#cover').hide();
+    $('#cover').css('opacity', '0');
     mark.startTime = new Date();
     mark.playerStartTime = 0;
 
     player.seekTo(0, true);
     player.playVideo();
+    markMode = markModes.PLAY;
 }
 
+function markStop() {
+    player.pauseVideo();
+    $('#marker').hide();
+    $('#cover').show();
+}
 
-var mark = { startTime: 0, playerStartTime: 1, countdown: 2, mousedown: 3 };
+var mark = { startTime: 0, playerStartTime: 1, countDown: 2, mouseDown: 3 };
 
 function markClock() {
-    switch (markmode) {
-        case markmodes.COVER :
-            mark.countdown--;
-            if (mark.countdown <= 0) markPlay();
+    switch (markMode) {
+        case markModes.COVER :
+            mark.countDown--;
+            if (mark.countDown <= 0) markPlay();
             break;
-        case markmodes.PLAY :
+        case markModes.PLAY :
             var timeDiff = new Date() - mark.startTime;
             var playerTime = mark.playerStartTime + (timeDiff / 1000);
-            var id = Math.floor(playerTime * 10);
+            var id = Math.ceil(playerTime * 20);
 
-            if (mark.mousedown === 1) {
-                markbarStatus[id] = 1;
-                var key = '#mark' + (id + 1);
-                $(key).attr('class', 'mark_down');
+            if (mark.mouseDown === 'down') {
+                markbarStatus[id] = 'down';
+                var key = '#mark-' + (id + 1);
+                $(key).attr('class', 'mark-down');
             }
 
             if (id < playerDuration) {
@@ -280,7 +289,7 @@ function markClock() {
                 var to = markbarPosition(id + 1);
                 var pos = from + (to - from) / 2;
                 $('#mark-position').css('margin-left', pos + 7 + 'px');
-            } else {
+            } else if (id === playerDuration) {
                 console.log('invalid id ' + id);
             }
             break;
@@ -292,9 +301,32 @@ function markClock() {
 
 /* MARKBAR */
 
+var $markButton = $('#mark-button');
+
+var n = 0;
+$markButton.mousedown(function () {
+    markedDown[n] = player.getCurrentTime();
+    mark.mouseDown = 'down';
+});
+
+$markButton.mouseup(function () {
+    markedUp[n] = player.getCurrentTime();
+    mark.mouseDown = 'up';
+    n++;
+});
+
+$('#clear-button').click(function () {
+    for ( var i = 0; i < 2000; i++) {
+        markedDown[i] = null;
+        markedUp[i] = null;
+    }
+    markbarInit();
+    markbarDraw();
+});
+
 var markbarStatus = [];
 function markbarInit() {
-    for (var i = 0; i < 1000; i++) markbarStatus[i] = 0;
+    for (var i = 0; i < 2000; i++) markbarStatus[i] = 'up';
 }
 
 var playerDuration;
@@ -306,7 +338,7 @@ function markbarDraw() {
     var $markbar = $('#markbar');
     var total = 0;
     var duration = player.getDuration();
-    playerDuration = Math.ceil(duration * 100);
+    playerDuration = Math.ceil(duration * 20);
 
     $markbar.empty();
     for (var i = 0; i < playerDuration; i++) {
@@ -314,7 +346,7 @@ function markbarDraw() {
         var to = markbarPosition(i + 1);
         var eachWidth = to - from;
         total += eachWidth;
-        $markbar.append('<div id="mark' + (i + 1) + '" class="mark-' + markbarStatus[i] + '" style="width: ' + eachWidth + 'px;"></div>');
+        $markbar.append('<div id="mark-' + (i + 1) + '" class="mark-' + markbarStatus[i] + '" style="width: ' + eachWidth + 'px;"></div>');
     }
 }
 
@@ -326,67 +358,24 @@ function markbarPosition(i) {
     return Math.round(ntn * (markbarWidth / playerDuration));
 }
 
-function markStop() {
-    player.pauseVideo();
-    $('#marker').hide();
-    $('#cover').show();
-}
-/*
-/!* STOPWATCH *!/
+/* MARKED */
 
-var h1 = document.getElementsByTagName('h1')[0];
-var start = document.getElementById('start');
-var stop = document.getElementById('stop');
-var clear = document.getElementById('clear');
-var milliseconds = 0;
-var seconds = 0;
-var minutes = 0;
-var t;
-var timerRunning = false;
+$('#listen-button').click(function () {
+    markedStart(1);
+});
 
-function add() {
-    timerRunning = true;
-    milliseconds++;
-    if (milliseconds >= 600) {
-        milliseconds = 0;
-        seconds++;
-        if (seconds >= 60) {
-            seconds = 0;
-            minutes++;
+$('#repeat-button').click(function () {
+    markedStart(5);
+});
+
+function markedStart(count) {
+    for (var i = 0; i < count; i++) {
+        for (var j = 0; j < n; j++) {
+            player.seekTo(markedDown[j], true);
+            player.playVideo();
         }
     }
-
-
-    h1.textContent = minutes  + ':' + seconds + ':' + milliseconds;
-
-    timer();
 }
-
-function timer() {
-    t = setTimeout(add, 0);
-}
-
-/!* Start button *!/
-$('#start').click(function () {
-    if (timerRunning) {
-        clearTimeout(t);
-    }
-    timer();
-});
-
-/!* Stop button *!/
-$('#stop').click(function () {
-    clearTimeout(t);
-});
-
-/!* Clear button *!/
-$('#clear').click(function () {
-    h1.textContent = '0:0:0';
-    milliseconds = 0;
-    seconds = 0;
-    minutes = 0;
-});
-*/
 
 
 /* STUDY */
@@ -397,10 +386,10 @@ $('#button-study').click(function () {
     studyStop();
     listenStop();
     markStop();
-    studyStateChange();
+    studyStart();
 });
 
-function studyStateChange() {
+function studyStart() {
     mode = modes.STUDY;
     states = study.PLAY;
     resizeVideo();
@@ -438,7 +427,6 @@ function studyPlay() {
         states = study.PLAY_AUDIO;
         $('#mode-title').text('');
         var $audio = $('#audio');
-        var $msgStudy = $('#msg-study');
         if (opacityStep < 7 || !opacityStep) {
             $audio.empty();
             $audio.append(
@@ -446,7 +434,7 @@ function studyPlay() {
                 '<source src="audio/' + SCRIPT[currentStep].audio + '" type="audio/ogg">' +
                 '</audio>');
             var audioNow = document.getElementById('audio-now');
-            $msgStudy.text(SCRIPT[currentStep].words);
+            $('#msg-study').text(SCRIPT[currentStep].words);
         }
 
         opacitySet();
@@ -529,7 +517,7 @@ $('#level-order').click(function () {
     });
 
     studyStop();
-    studyStateChange();
+    studyStart();
 });
 
 $('#time-order').click(function () {
@@ -543,7 +531,7 @@ $('#time-order').click(function () {
     });
 
     studyStop();
-    studyStateChange();
+    studyStart();
 });
 
 function studyStop() {
