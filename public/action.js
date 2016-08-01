@@ -373,6 +373,7 @@ function markedStart(count) {
         for (var j = 0; j < n; j++) {
             player.seekTo(markedDown[j], true);
             player.playVideo();
+            // player.pauseVideo();
         }
     }
 }
