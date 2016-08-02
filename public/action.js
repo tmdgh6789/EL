@@ -4,9 +4,14 @@ var mode;
 
 var modes = { LISTEN: 1, MARK: 2, STUDY: 3, MARKED: 4 };
 
-var states;
+var markMode;
+var markModes = { COVER: 0, PLAY: 1, PAUSE: 2, STOP: 3 };
 
-var study = { COVER: 1, PLAY: 2, PLAY_AUDIO: 3 };
+var markedMode;
+var markedModes = { LISTEN: 0, REPEAT: 1 };
+
+var studyMode;
+var studyModes = { COVER: 1, PLAY: 2, PLAY_AUDIO: 3 };
 
 var SCRIPT = [
     { from: 1.9, to: 2.3, words: 'chick', audio: 'chick.ogg', level: 1.0 },
@@ -93,7 +98,7 @@ function onPlayerStateChange(event) {
             studyStart(event);
             break;
         case modes.MARKED :
-            // marked_stateChange(event);
+            // markedStart();
             break;
         default : {
             alert('onPlayerStateChange() unhandled ' + mode);
@@ -133,7 +138,7 @@ function actionClock() {
             // study_clock();
             break;
         case modes.MARKED :
-            // marked_clock();
+            // markedClock();
             break;
         default :
             alert('actionClock() unhandled ' + mode);
@@ -153,7 +158,7 @@ $('#cover').click(function () {
         case modes.MARKED :
             break;
         case modes.STUDY :
-            if (states === study.COVER) {
+            if (studyMode === studyModes.COVER) {
                 if (!$audio.children().length > 0) {
                     studyStop();
                 }
@@ -216,8 +221,6 @@ function listenStop() {
 
 /* MARK */
 
-var markMode;
-var markModes = { COVER: 0, PLAY: 1, PAUSE: 2, STOP: 3 };
 var markedDown = [];
 var markedUp = [];
 
@@ -228,6 +231,7 @@ $('#button-mark').click(function () {
     resizeVideo();
     markStart();
 });
+
 
 function markStart() {
     mode = modes.MARK;
@@ -253,6 +257,12 @@ function markPlay() {
     $('#cover').css('opacity', '0');
     mark.startTime = new Date();
     mark.playerStartTime = 0;
+
+    if (timerRunning) {
+        stopWatchReset();
+    }
+    stopWatchShow();
+    stopWatchStart();
 
     player.seekTo(0, true);
     player.playVideo();
@@ -305,13 +315,19 @@ var $markButton = $('#mark-button');
 
 var n = 0;
 $markButton.mousedown(function () {
-    markedDown[n] = player.getCurrentTime();
+    var s = S;
+    var ms = MS / 1000;
+    markedDown[n] = s + ms;
     mark.mouseDown = 'down';
+    console.log(markedDown[n]);
 });
 
 $markButton.mouseup(function () {
-    markedUp[n] = player.getCurrentTime();
+    var s = S;
+    var ms = MS / 1000;
+    markedUp[n] = s + ms;
     mark.mouseDown = 'up';
+    console.log(markedUp[n]);
     n++;
 });
 
@@ -333,7 +349,6 @@ var playerDuration;
 
 function markbarDraw() {
     if (player === null) return;
-
 
     var $markbar = $('#markbar');
     var total = 0;
@@ -361,24 +376,33 @@ function markbarPosition(i) {
 /* MARKED */
 
 $('#listen-button').click(function () {
-    markedStart(1);
+    mode = modes.MARKED;
+    markedMode = markedModes.LISTEN;
+    markedStart();
 });
 
 $('#repeat-button').click(function () {
-    markedStart(5);
+    mode = modes.MARKED;
+    markedMode = markedModes.REPEAT;
+    markedStart();
 });
 
-function markedStart(count) {
-    for (var i = 0; i < count; i++) {
-        for (var j = 0; j < n; j++) {
-            player.seekTo(markedDown[j], true);
+function markedStart() {
+    // S = Math.floor(markedDown[0]);
+    // MS = markedDown[0] % S;
+
+    switch (markedMode) {
+        case markedModes.LISTEN :
+            console.log(markedDown[0] - 0.2);
+            player.seekTo(markedDown[0] - 0.2, true);
             player.playVideo();
-            // player.pauseVideo();
-        }
+            break;
+        case markedModes.REPEAT :
+            break;
+        default :
+            break;
     }
 }
-
-
 /* STUDY */
 
 var currentStep;
@@ -392,7 +416,7 @@ $('#button-study').click(function () {
 
 function studyStart() {
     mode = modes.STUDY;
-    states = study.PLAY;
+    studyMode = studyModes.PLAY;
     resizeVideo();
     player.pauseVideo();
     player.seekTo(0, true);
@@ -425,7 +449,7 @@ function studyStep() {
 function studyPlay() {
     if (mode === modes.STUDY) {
         mode = modes.STUDY;
-        states = study.PLAY_AUDIO;
+        studyMode = studyModes.PLAY_AUDIO;
         $('#mode-title').text('');
         var $audio = $('#audio');
         if (opacityStep < 7 || !opacityStep) {
@@ -468,7 +492,7 @@ function opacitySet() {
 }
 
 function timeCount() {
-    if (states === study.PLAY_AUDIO) {
+    if (studyMode === studyModes.PLAY_AUDIO) {
         setTimeout(function () {
             audioOnEnded();
         }, 1500);
@@ -481,7 +505,7 @@ function audioOnEnded() {
         $('#mode-title').text('Study');
         $('#mode-des').text('Click to continue');
         $('#msg-study').text('');
-        states = study.COVER;
+        studyMode = studyModes.COVER;
     }
 }
 
@@ -540,6 +564,82 @@ function studyStop() {
     currentStep = 0;
     opacityStep = 0;
     $('#audio').empty();
+}
+
+
+/* STOPWATCH */
+
+var timerRunning = false;
+var clockTimer;
+var $time;
+var S;
+var MS;
+
+var	ClsStopwatch = function() {
+    var startAt = 0;
+    var lapTime = 0;
+
+    var now = function () {
+        return (new Date()).getTime();
+    };
+
+    this.start = function() {
+        timerRunning = true;
+        startAt	= startAt ? startAt : now();
+    };
+
+    this.stop = function() {
+        lapTime	= startAt ? lapTime + now() - startAt : lapTime;
+        startAt	= 0;
+    };
+
+    this.reset = function() {
+        lapTime = startAt = 0;
+    };
+
+    this.time = function() {
+        return lapTime + (startAt ? now() - startAt : 0);
+    };
+};
+var x = new ClsStopwatch();
+
+function pad(num, size) {
+    var s = '0000' + num;
+    return s.substr(s.length - size);
+}
+
+function formatTime(time) {
+    var tt = time;
+
+
+    S = Math.floor( tt / 1000 );
+    MS = tt % 1000;
+
+    return pad(S, 4) + ':' + pad(MS, 3);
+}
+
+function stopWatchShow() {
+    $time = document.getElementById('time');
+    stopWatchUpdate();
+}
+
+function stopWatchUpdate() {
+    $time.innerHTML = formatTime(x.time());
+}
+
+function stopWatchStart() {
+    clockTimer = setInterval(stopWatchUpdate, 1);
+    x.start();
+}
+
+function stopWatchStop() {
+    x.stop();
+    clearInterval(clockTimer);
+}
+
+function stopWatchReset() {
+    stopWatchStop();
+    x.reset();
 }
 
 
