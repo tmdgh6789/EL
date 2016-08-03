@@ -92,13 +92,13 @@ function onPlayerStateChange(event) {
             listenStateChange(event);
             break;
         case modes.MARK :
-            // mark_stateChange(event);
+            markStateChange(event);
             break;
         case modes.STUDY :
             studyStart(event);
             break;
         case modes.MARKED :
-            // markedStart();
+            markedStateChange(event);
             break;
         default : {
             alert('onPlayerStateChange() unhandled ' + mode);
@@ -138,7 +138,7 @@ function actionClock() {
             // study_clock();
             break;
         case modes.MARKED :
-            // markedClock();
+            markedStart();
             break;
         default :
             alert('actionClock() unhandled ' + mode);
@@ -309,17 +309,24 @@ function markClock() {
     }
 }
 
+function markStateChange(event) {
+    if (event.data === YT.PlayerState. ENDED) {
+        stopWatchStop();
+    }
+}
+
 /* MARKBAR */
 
 var $markButton = $('#mark-button');
 
 var n = 0;
+var markedLapTime = [];
 $markButton.mousedown(function () {
     var s = S;
     var ms = MS / 1000;
     markedDown[n] = s + ms;
+    markedLapTime[n] = startAt ? lapTime + x.now() - startAt : lapTime;
     mark.mouseDown = 'down';
-    console.log(markedDown[n]);
 });
 
 $markButton.mouseup(function () {
@@ -327,18 +334,22 @@ $markButton.mouseup(function () {
     var ms = MS / 1000;
     markedUp[n] = s + ms;
     mark.mouseDown = 'up';
-    console.log(markedUp[n]);
     n++;
 });
 
 $('#clear-button').click(function () {
-    for ( var i = 0; i < 2000; i++) {
-        markedDown[i] = null;
-        markedUp[i] = null;
-    }
+    markedClear();
     markbarInit();
     markbarDraw();
 });
+
+function markedClear() {
+    for ( var i = 0; i < n; i++) {
+        markedDown.pop();
+        markedUp.pop();
+    }
+    n = 0;
+}
 
 var markbarStatus = [];
 function markbarInit() {
@@ -384,18 +395,30 @@ $('#listen-button').click(function () {
 $('#repeat-button').click(function () {
     mode = modes.MARKED;
     markedMode = markedModes.REPEAT;
-    markedStart();
+    stopWatchReset();
 });
 
-function markedStart() {
-    // S = Math.floor(markedDown[0]);
-    // MS = markedDown[0] % S;
+function markedStateChange(event) {
+    if (event.data === YT.PlayerState. ENDED) {
+        stopWatchStop();
+    }
+}
 
+var m = 0;
+function markedStart() {
     switch (markedMode) {
         case markedModes.LISTEN :
-            console.log(markedDown[0] - 0.2);
             player.seekTo(markedDown[0] - 0.2, true);
+            stopWatchStop();
             player.playVideo();
+            $time = document.getElementById('time');
+            $time.innerHTML = formatTime(lapTime);
+            lapTime = markedLapTime[m] - 400;
+            stopWatchStart();
+
+            /* if (now === markedUp[0]) {
+                player.pauseVideo();
+            } */
             break;
         case markedModes.REPEAT :
             break;
@@ -403,6 +426,7 @@ function markedStart() {
             break;
     }
 }
+
 /* STUDY */
 
 var currentStep;
@@ -574,22 +598,21 @@ var clockTimer;
 var $time;
 var S;
 var MS;
+var startAt = 0;
+var lapTime = 0;
 
 var	ClsStopwatch = function() {
-    var startAt = 0;
-    var lapTime = 0;
-
-    var now = function () {
+    this.now = function () {
         return (new Date()).getTime();
     };
 
     this.start = function() {
         timerRunning = true;
-        startAt	= startAt ? startAt : now();
+        startAt	= startAt ? startAt : x.now();
     };
 
     this.stop = function() {
-        lapTime	= startAt ? lapTime + now() - startAt : lapTime;
+        lapTime	= startAt ? lapTime + x.now() - startAt : lapTime;
         startAt	= 0;
     };
 
@@ -598,7 +621,7 @@ var	ClsStopwatch = function() {
     };
 
     this.time = function() {
-        return lapTime + (startAt ? now() - startAt : 0);
+        return lapTime + (startAt ? x.now() - startAt : 0);
     };
 };
 var x = new ClsStopwatch();
