@@ -124,6 +124,12 @@ function clockRestart() {
     clockStart();
 }
 
+function markedClockStart() {
+    clockStop();
+    clock = setTimeout(markedClockStart, section);
+    markedNext();
+}
+
 function actionClock() {
     clock = setTimeout(actionClock, 0);
 
@@ -138,7 +144,7 @@ function actionClock() {
             // study_clock();
             break;
         case modes.MARKED :
-            markedStart();
+            markedNext();
             break;
         default :
             alert('actionClock() unhandled ' + mode);
@@ -154,6 +160,7 @@ $('#cover').click(function () {
             listenPlay();
             break;
         case modes.MARK :
+            markStart();
             break;
         case modes.MARKED :
             break;
@@ -310,9 +317,17 @@ function markClock() {
 }
 
 function markStateChange(event) {
-    if (event.data === YT.PlayerState. ENDED) {
+    if (event.data === YT.PlayerState.ENDED) {
         stopWatchStop();
+
+        var $cover = $('#cover');
+
+        $('#mode-title').text('Mark');
+        $('#mode-des').text('Click to continue');
+        $('#msg-study').text('');
+        $cover.css('opacity', '1');
     }
+    $('#listen-counter').text(listenCount);
 }
 
 /* MARKBAR */
@@ -406,24 +421,48 @@ function markedStateChange(event) {
 
 var m = 0;
 function markedStart() {
+    $('#mode-title').text('Mark');
+    $('#mode-des').text('');
+    $('#msg-study').text('');
+
+    $('#cover').css('opacity', '0');
+
     switch (markedMode) {
         case markedModes.LISTEN :
-            player.seekTo(markedDown[0] - 0.2, true);
+            player.seekTo(markedDown[m] - 0.2, true);
             stopWatchStop();
-            player.playVideo();
+            lapTime = markedLapTime[m];
             $time = document.getElementById('time');
             $time.innerHTML = formatTime(lapTime);
-            lapTime = markedLapTime[m] - 400;
             stopWatchStart();
-
-            /* if (now === markedUp[0]) {
-                player.pauseVideo();
-            } */
+            player.playVideo();
+            markedClockStart();
             break;
         case markedModes.REPEAT :
             break;
         default :
             break;
+    }
+}
+
+var section;
+function markedNext() {
+    var nextTime = (x.now() - startAt) / 1000;
+    section = markedUp[m] - markedDown[m];
+    console.log(nextTime);
+    console.log(section);
+    if (m < n) {
+        if (nextTime >= section) {
+            stopWatchStop();
+            clockStop();
+            player.pauseVideo();
+            m++;
+            markedClockStart();
+        }
+    } else {
+        m = 0;
+        stopWatchStop();
+        clockStop();
     }
 }
 
