@@ -48,9 +48,9 @@ function onYouTubeIframeAPIReady() {
     player = new YT.Player('player', {
         width: width,
         height: height,
-        videoId: 'Pf4A1Sl_OkI',
+        // videoId: 'Pf4A1Sl_OkI',
         // videoId: 'S0s2J4m5ITg',
-        // videoId: 'D5UToOanKPQ',
+        videoId: 'D5UToOanKPQ',
         playerVars: {
             autoplay: 0,
             controls: 0,
@@ -126,8 +126,7 @@ function clockRestart() {
 
 function markedClockStart() {
     clockStop();
-    clock = setTimeout(markedClockStart, section);
-    markedNext();
+    clock = setInterval(markedNext, 1);
 }
 
 function actionClock() {
@@ -144,7 +143,7 @@ function actionClock() {
             // study_clock();
             break;
         case modes.MARKED :
-            markedNext();
+            // markedNext();
             break;
         default :
             alert('actionClock() unhandled ' + mode);
@@ -293,7 +292,7 @@ function markClock() {
         case markModes.PLAY :
             var timeDiff = new Date() - mark.startTime;
             var playerTime = mark.playerStartTime + (timeDiff / 1000);
-            var id = Math.ceil(playerTime * 20);
+            var id = Math.ceil(playerTime * 10);
 
             if (mark.mouseDown === 'down') {
                 markbarStatus[id] = 'down';
@@ -362,13 +361,15 @@ function markedClear() {
     for ( var i = 0; i < n; i++) {
         markedDown.pop();
         markedUp.pop();
+        section.pop();
     }
+    m = 0;
     n = 0;
 }
 
 var markbarStatus = [];
 function markbarInit() {
-    for (var i = 0; i < 2000; i++) markbarStatus[i] = 'up';
+    for (var i = 0; i < 1000; i++) markbarStatus[i] = 'up';
 }
 
 var playerDuration;
@@ -379,7 +380,7 @@ function markbarDraw() {
     var $markbar = $('#markbar');
     var total = 0;
     var duration = player.getDuration();
-    playerDuration = Math.ceil(duration * 20);
+    playerDuration = Math.ceil(duration * 10);
 
     $markbar.empty();
     for (var i = 0; i < playerDuration; i++) {
@@ -410,7 +411,7 @@ $('#listen-button').click(function () {
 $('#repeat-button').click(function () {
     mode = modes.MARKED;
     markedMode = markedModes.REPEAT;
-    stopWatchReset();
+    // markedStart();
 });
 
 function markedStateChange(event) {
@@ -427,42 +428,42 @@ function markedStart() {
 
     $('#cover').css('opacity', '0');
 
+    player.seekTo(markedDown[m] - 0.2, true);
+    stopWatchStop();
+    lapTime = markedLapTime[m];
+    $time = document.getElementById('time');
+    $time.innerHTML = formatTime(lapTime);
+    stopWatchStart();
+    player.playVideo();
+
     switch (markedMode) {
         case markedModes.LISTEN :
-            player.seekTo(markedDown[m] - 0.2, true);
-            stopWatchStop();
-            lapTime = markedLapTime[m];
-            $time = document.getElementById('time');
-            $time.innerHTML = formatTime(lapTime);
-            stopWatchStart();
-            player.playVideo();
             markedClockStart();
             break;
         case markedModes.REPEAT :
+            markedClockStart();
             break;
         default :
             break;
     }
 }
 
-var section;
+var section = [];
 function markedNext() {
-    var nextTime = (x.now() - startAt) / 1000;
-    section = markedUp[m] - markedDown[m];
-    console.log(nextTime);
-    console.log(section);
+    var currentTime = (x.now() - startAt) / 1000;
+    section[m] = markedUp[m] - (markedDown[m] - 0.2);
     if (m < n) {
-        if (nextTime >= section) {
+        if (currentTime >= section[m]) {
             stopWatchStop();
             clockStop();
-            player.pauseVideo();
             m++;
-            markedClockStart();
+            markedStart();
         }
-    } else {
+    } else if (m === n) {
         m = 0;
-        stopWatchStop();
         clockStop();
+        stopWatchStop();
+        player.pauseVideo();
     }
 }
 
