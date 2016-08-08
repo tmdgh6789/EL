@@ -292,7 +292,7 @@ function markClock() {
         case markModes.PLAY :
             var timeDiff = new Date() - mark.startTime;
             var playerTime = mark.playerStartTime + (timeDiff / 1000);
-            var id = Math.ceil(playerTime * 10);
+            var id = Math.ceil(playerTime * 20);
 
             if (mark.mouseDown === 'down') {
                 markbarStatus[id] = 'down';
@@ -369,7 +369,7 @@ function markedClear() {
 
 var markbarStatus = [];
 function markbarInit() {
-    for (var i = 0; i < 1000; i++) markbarStatus[i] = 'up';
+    for (var i = 0; i < 2000; i++) markbarStatus[i] = 'up';
 }
 
 var playerDuration;
@@ -380,7 +380,7 @@ function markbarDraw() {
     var $markbar = $('#markbar');
     var total = 0;
     var duration = player.getDuration();
-    playerDuration = Math.ceil(duration * 10);
+    playerDuration = Math.ceil(duration * 20);
 
     $markbar.empty();
     for (var i = 0; i < playerDuration; i++) {
