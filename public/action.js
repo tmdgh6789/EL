@@ -333,22 +333,22 @@ function markStateChange(event) {
 
 var $markButton = $('#mark-button');
 
-var n = 0;
+var totalCount = 0;
 var markedLapTime = [];
 $markButton.mousedown(function () {
     var s = S;
     var ms = MS / 1000;
-    markedDown[n] = s + ms;
-    markedLapTime[n] = startAt ? lapTime + x.now() - startAt : lapTime;
+    markedDown[totalCount] = s + ms;
+    markedLapTime[totalCount] = startAt ? lapTime + x.now() - startAt : lapTime;
     mark.mouseDown = 'down';
 });
 
 $markButton.mouseup(function () {
     var s = S;
     var ms = MS / 1000;
-    markedUp[n] = s + ms;
+    markedUp[totalCount] = s + ms;
     mark.mouseDown = 'up';
-    n++;
+    totalCount++;
 });
 
 $('#clear-button').click(function () {
@@ -358,13 +358,13 @@ $('#clear-button').click(function () {
 });
 
 function markedClear() {
-    for ( var i = 0; i < n; i++) {
+    for ( var i = 0; i < totalCount; i++) {
         markedDown.pop();
         markedUp.pop();
         section.pop();
     }
-    m = 0;
-    n = 0;
+    playCount = 0;
+    totalCount = 0;
 }
 
 var markbarStatus = [];
@@ -411,7 +411,7 @@ $('#listen-button').click(function () {
 $('#repeat-button').click(function () {
     mode = modes.MARKED;
     markedMode = markedModes.REPEAT;
-    // markedStart();
+    markedStart();
 });
 
 function markedStateChange(event) {
@@ -420,7 +420,7 @@ function markedStateChange(event) {
     }
 }
 
-var m = 0;
+var playCount = 0;
 function markedStart() {
     $('#mode-title').text('Mark');
     $('#mode-des').text('');
@@ -428,9 +428,9 @@ function markedStart() {
 
     $('#cover').css('opacity', '0');
 
-    player.seekTo(markedDown[m] - 0.2, true);
+    player.seekTo(markedDown[playCount] - 0.2, true);
     stopWatchStop();
-    lapTime = markedLapTime[m];
+    lapTime = markedLapTime[playCount];
     $time = document.getElementById('time');
     $time.innerHTML = formatTime(lapTime);
     stopWatchStart();
@@ -451,19 +451,48 @@ function markedStart() {
 var section = [];
 function markedNext() {
     var currentTime = (x.now() - startAt) / 1000;
-    section[m] = markedUp[m] - (markedDown[m] - 0.2);
-    if (m < n) {
-        if (currentTime >= section[m]) {
-            stopWatchStop();
-            clockStop();
-            m++;
-            markedStart();
-        }
-    } else if (m === n) {
-        m = 0;
-        clockStop();
-        stopWatchStop();
-        player.pauseVideo();
+    section[playCount] = markedUp[playCount] - (markedDown[playCount] - 0.2);
+    var i = 0;
+
+    switch (markedMode) {
+        case markedModes.LISTEN :
+            if (playCount < totalCount) {
+                if (currentTime >= section[playCount]) {
+                    stopWatchStop();
+                    clockStop();
+                    playCount++;
+                    markedStart();
+                }
+            } else if (playCount === totalCount) {
+                playCount = 0;
+                clockStop();
+                stopWatchStop();
+                player.pauseVideo();
+            }
+            break;
+        case markedModes.REPEAT :
+            if (playCount < totalCount * 5) {
+                var pc = playCount - (totalCount * i);
+                if (currentTime >= section[pc]) {
+                    console.log(section[pc]);
+                    console.log(playCount);
+                    stopWatchStop();
+                    clockStop();
+                    playCount++;
+                    markedStart();
+                }
+                if (playCount === totalCount * i) {
+                    i++;
+                }
+            } else if (playCount === totalCount * 5) {
+                playCount = 0;
+                clockStop();
+                stopWatchStop();
+                player.pauseVideo();
+            }
+            break;
+        default :
+            break;
     }
 }
 
