@@ -124,7 +124,7 @@ function clockRestart() {
     clockStart();
 }
 
-function markedClockStart() {
+function actionMarkedClock() {
     clockStop();
     clock = setInterval(markedNext, 1);
 }
@@ -276,13 +276,14 @@ function markPlay() {
 }
 
 function markStop() {
+    markPosition = 0;
     player.pauseVideo();
     $('#marker').hide();
     $('#cover').show();
 }
 
 var mark = { startTime: 0, playerStartTime: 1, countDown: 2, mouseDown: 3 };
-
+var markPosition;
 function markClock() {
     switch (markMode) {
         case markModes.COVER :
@@ -292,7 +293,7 @@ function markClock() {
         case markModes.PLAY :
             var timeDiff = new Date() - mark.startTime;
             var playerTime = mark.playerStartTime + (timeDiff / 1000);
-            var id = Math.ceil(playerTime * 20);
+            var id = Math.floor(playerTime * 20);
 
             if (mark.mouseDown === 'down') {
                 markbarStatus[id] = 'down';
@@ -305,7 +306,8 @@ function markClock() {
                 var to = markbarPosition(id + 1);
                 var pos = from + (to - from) / 2;
                 $('#mark-position').css('margin-left', pos + 7 + 'px');
-            } else if (id === playerDuration) {
+            } else if (id >= playerDuration) {
+                clockStop();
                 console.log('invalid id ' + id);
             }
             break;
@@ -317,7 +319,7 @@ function markClock() {
 
 function markStateChange(event) {
     if (event.data === YT.PlayerState.ENDED) {
-        stopWatchStop();
+        // stopWatchStop();
 
         var $cover = $('#cover');
 
@@ -338,7 +340,7 @@ var markedLapTime = [];
 $markButton.mousedown(function () {
     var s = S;
     var ms = MS / 1000;
-    markedDown[totalCount] = s + ms;
+    markedDown[totalCount] = (s + ms) - 0.2;
     markedLapTime[totalCount] = startAt ? lapTime + x.now() - startAt : lapTime;
     mark.mouseDown = 'down';
 });
@@ -416,7 +418,7 @@ $('#repeat-button').click(function () {
 
 function markedStateChange(event) {
     if (event.data === YT.PlayerState. ENDED) {
-        stopWatchStop();
+        // stopWatchStop();
     }
 }
 
@@ -428,7 +430,7 @@ function markedStart() {
 
     $('#cover').css('opacity', '0');
 
-    player.seekTo(markedDown[playCount] - 0.2, true);
+    player.seekTo(markedDown[playCount], true);
     stopWatchStop();
     lapTime = markedLapTime[playCount];
     $time = document.getElementById('time');
@@ -438,10 +440,10 @@ function markedStart() {
 
     switch (markedMode) {
         case markedModes.LISTEN :
-            markedClockStart();
+            actionMarkedClock();
             break;
         case markedModes.REPEAT :
-            markedClockStart();
+            actionMarkedClock();
             break;
         default :
             break;
@@ -451,8 +453,22 @@ function markedStart() {
 var section = [];
 function markedNext() {
     var currentTime = (x.now() - startAt) / 1000;
-    section[playCount] = markedUp[playCount] - (markedDown[playCount] - 0.2);
+    section[playCount] = markedUp[playCount] - markedDown[playCount];
     var i = 0;
+
+    var timeDiff = new Date() - startAt;
+    var playerTime = timeDiff / 1000;
+    var id = Math.floor(playerTime * 20);
+
+    if (id < playerDuration) {
+        var from = markbarPosition(id);
+        var to = markbarPosition(id + 1);
+        var pos = from + (to - from) / 2;
+        $('#mark-position').css('margin-left', pos + 7 + 'px');
+    } else if (id >= playerDuration) {
+        clockStop();
+        console.log('invalid id ' + id);
+    }
 
     switch (markedMode) {
         case markedModes.LISTEN :
@@ -471,8 +487,11 @@ function markedNext() {
             }
             break;
         case markedModes.REPEAT :
+            var pc = playCount - (totalCount * i);
             if (playCount < totalCount * 5) {
-                var pc = playCount - (totalCount * i);
+                if (pc < 0 ) {
+                    pc = 0;
+                }
                 if (currentTime >= section[pc]) {
                     console.log(section[pc]);
                     console.log(playCount);
