@@ -418,7 +418,7 @@ $('#repeat-button').click(function () {
 
 function markedStateChange(event) {
     if (event.data === YT.PlayerState. ENDED) {
-        // stopWatchStop();
+        stopWatchStop();
     }
 }
 
