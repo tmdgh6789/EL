@@ -417,8 +417,10 @@ $('#repeat-button').click(function () {
 });
 
 function markedStateChange(event) {
-    if (event.data === YT.PlayerState. ENDED) {
+    if (event.data === YT.PlayerState.ENDED) {
         stopWatchStop();
+    } else if (event.data === YT.PlayerState.PAUSED) {
+        markStop();
     }
 }
 
@@ -430,9 +432,12 @@ function markedStart() {
 
     $('#cover').css('opacity', '0');
 
-    player.seekTo(markedDown[playCount], true);
+    var startPc = playCount - (totalCount * repeatCount);
+    var pc = startPc > totalCount - 1 ? 0 : playCount - (totalCount * repeatCount);
+    console.log(pc);
+    player.seekTo(markedDown[pc], true);
     stopWatchStop();
-    lapTime = markedLapTime[playCount];
+    lapTime = markedLapTime[pc];
     $time = document.getElementById('time');
     $time.innerHTML = formatTime(lapTime);
     stopWatchStart();
@@ -450,11 +455,11 @@ function markedStart() {
     }
 }
 
+var repeatCount = 0;
 var section = [];
 function markedNext() {
-    var currentTime = (x.now() - startAt) / 1000;
+    var currentTime = (startAt ? x.now() - startAt : 0) / 1000;
     section[playCount] = markedUp[playCount] - markedDown[playCount];
-    var i = 0;
 
     var timeDiff = new Date() - startAt;
     var playerTime = timeDiff / 1000;
@@ -487,21 +492,16 @@ function markedNext() {
             }
             break;
         case markedModes.REPEAT :
-            var pc = playCount - (totalCount * i);
+            var pc = playCount - (totalCount * repeatCount);
             if (playCount < totalCount * 5) {
-                if (pc < 0 ) {
-                    pc = 0;
-                }
                 if (currentTime >= section[pc]) {
-                    console.log(section[pc]);
-                    console.log(playCount);
                     stopWatchStop();
                     clockStop();
                     playCount++;
                     markedStart();
                 }
-                if (playCount === totalCount * i) {
-                    i++;
+                if (playCount === totalCount * (repeatCount + 1)) {
+                    repeatCount++;
                 }
             } else if (playCount === totalCount * 5) {
                 playCount = 0;
