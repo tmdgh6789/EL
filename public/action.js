@@ -162,6 +162,7 @@ $('#cover').click(function () {
             markStart();
             break;
         case modes.MARKED :
+            markedStart();
             break;
         case modes.STUDY :
             if (studyMode === studyModes.COVER) {
@@ -189,9 +190,10 @@ $('#button-listen').click(function () {
     $('.study-mode').css('visibility', 'hidden');
     $('#marker').hide();
 
-    markStop();
-    studyStop();
     listenStop();
+    markStop();
+    markedStop();
+    studyStop();
     listenPlay();
 });
 
@@ -231,8 +233,9 @@ var markedDown = [];
 var markedUp = [];
 
 $('#button-mark').click(function () {
-    markStop();
     listenStop();
+    markStop();
+    markedStop();
     studyStop();
     resizeVideo();
     markStart();
@@ -319,16 +322,13 @@ function markClock() {
 
 function markStateChange(event) {
     if (event.data === YT.PlayerState.ENDED) {
-        // stopWatchStop();
-
-        var $cover = $('#cover');
+        stopWatchStop();
 
         $('#mode-title').text('Mark');
         $('#mode-des').text('Click to continue');
         $('#msg-study').text('');
-        $cover.css('opacity', '1');
+        $('#cover').css('opacity', '1');
     }
-    $('#listen-counter').text(listenCount);
 }
 
 /* MARKBAR */
@@ -419,8 +419,18 @@ $('#repeat-button').click(function () {
 function markedStateChange(event) {
     if (event.data === YT.PlayerState.ENDED) {
         stopWatchStop();
+
+        $('#mode-title').text('Marked');
+        $('#mode-des').text('Click to continue');
+        $('#msg-study').text('');
+        $('#cover').css('opacity', '1');
     } else if (event.data === YT.PlayerState.PAUSED) {
-        markStop();
+        stopWatchStop();
+
+        $('#mode-title').text('Marked');
+        $('#mode-des').text('Click to continue');
+        $('#msg-study').text('');
+        $('#cover').css('opacity', '1');
     }
 }
 
@@ -460,15 +470,14 @@ var section = [];
 function markedNext() {
     var currentTime = (startAt ? x.now() - startAt : 0) / 1000;
     section[playCount] = markedUp[playCount] - markedDown[playCount];
-
-    var timeDiff = new Date() - startAt;
-    var playerTime = timeDiff / 1000;
+    var timeDiff = startAt - new Date();
+    var playerTime = (lapTime - timeDiff) / 1000;
     var id = Math.floor(playerTime * 20);
 
     if (id < playerDuration) {
-        var from = markbarPosition(id);
-        var to = markbarPosition(id + 1);
-        var pos = from + (to - from) / 2;
+        var to = markbarPosition(id);
+        var from = markbarPosition(id + 1);
+        var pos = from + (from - to) / 2;
         $('#mark-position').css('margin-left', pos + 7 + 'px');
     } else if (id >= playerDuration) {
         clockStop();
@@ -505,6 +514,7 @@ function markedNext() {
                 }
             } else if (playCount === totalCount * 5) {
                 playCount = 0;
+                repeatCount = 0;
                 clockStop();
                 stopWatchStop();
                 player.pauseVideo();
@@ -515,14 +525,26 @@ function markedNext() {
     }
 }
 
+function markedStop() {
+    markedClear();
+    markbarInit();
+    markbarDraw();
+    clockStop();
+    stopWatchStop();
+    player.pauseVideo();
+    player.seekTo(0, true);
+    repeatCount = 0;
+}
+
 /* STUDY */
 
 var currentStep;
 var opacityStep;
 $('#button-study').click(function () {
-    studyStop();
     listenStop();
     markStop();
+    markedStop();
+    studyStop();
     studyStart();
 });
 
