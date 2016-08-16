@@ -223,6 +223,10 @@
     padding: 5px;
 }
 
+#time {
+    visibility: hidden;
+}
+
 .empty-space {
     -webkit-flex: 1;
     flex: 1;
@@ -315,8 +319,12 @@
     background: #3498db;
     padding: 40px 0 40px 0;
     text-decoration: none;
-    margin: 245px 3px 3px 10px;
+    margin: 150% 3px 3px 10px;
     visibility: hidden;
+}
+
+#prev-button {
+    margin: 201.5% 3px 3px 70px;
 }
 
 .control-button:hover {
@@ -353,5 +361,9 @@
     padding: 5px;
     margin: 3px 3px 3px 10px;
 
+    visibility: hidden;
+}
+
+.audio-control {
     visibility: hidden;
 }

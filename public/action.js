@@ -53,7 +53,7 @@ function onYouTubeIframeAPIReady() {
         videoId: 'D5UToOanKPQ',
         playerVars: {
             autoplay: 0,
-            controls: 0,
+            control: 0,
             showinfo: 0,
             rel: 0,
             hl: 'en'
@@ -162,7 +162,13 @@ $('#cover').click(function () {
             markStart();
             break;
         case modes.MARKED :
-            markedStart();
+            if (!markedDown.length) {
+                alert('Please press the button after mark');
+                markStop();
+                markStart();
+            } else {
+                markedStart();
+            }
             break;
         case modes.STUDY :
             if (studyMode === studyModes.COVER) {
@@ -279,6 +285,7 @@ function markPlay() {
 }
 
 function markStop() {
+    stopWatchStop();
     markPosition = 0;
     player.pauseVideo();
     $('#marker').hide();
@@ -338,19 +345,26 @@ var $markButton = $('#mark-button');
 var totalCount = 0;
 var markedLapTime = [];
 $markButton.mousedown(function () {
-    var s = S;
-    var ms = MS / 1000;
-    markedDown[totalCount] = (s + ms) - 0.2;
-    markedLapTime[totalCount] = startAt ? lapTime + x.now() - startAt : lapTime;
-    mark.mouseDown = 'down';
+    if (mode === modes.MARK) {
+        var s = S;
+        var ms = MS / 1000;
+        markedDown[totalCount] = (s + ms) - 0.2;
+        markedLapTime[totalCount] = startAt ? lapTime + x.now() - startAt : lapTime;
+        mark.mouseDown = 'down';
+    } else {
+        markStop();
+        markStart();
+    }
 });
 
 $markButton.mouseup(function () {
-    var s = S;
-    var ms = MS / 1000;
-    markedUp[totalCount] = s + ms;
-    mark.mouseDown = 'up';
-    totalCount++;
+    if (mark.mouseDown === 'down') {
+        var s = S;
+        var ms = MS / 1000;
+        markedUp[totalCount] = s + ms;
+        mark.mouseDown = 'up';
+        totalCount++;
+    }
 });
 
 $('#clear-button').click(function () {
@@ -381,7 +395,9 @@ function markbarDraw() {
 
     var $markbar = $('#markbar');
     var total = 0;
-    var duration = player.getDuration();
+    if (player) {
+        var duration = player.getDuration();
+    }
     playerDuration = Math.ceil(duration * 20);
 
     $markbar.empty();
@@ -407,13 +423,25 @@ function markbarPosition(i) {
 $('#listen-button').click(function () {
     mode = modes.MARKED;
     markedMode = markedModes.LISTEN;
-    markedStart();
+    if (!markedDown.length) {
+        alert('Please press the button after mark');
+        markStop();
+        markStart();
+    } else {
+        markedStart();
+    }
 });
 
 $('#repeat-button').click(function () {
     mode = modes.MARKED;
     markedMode = markedModes.REPEAT;
-    markedStart();
+    if (!markedDown.length) {
+        alert('Please press the button after mark');
+        markStop();
+        markStart();
+    } else {
+        markedStart();
+    }
 });
 
 function markedStateChange(event) {
@@ -439,12 +467,15 @@ function markedStart() {
     $('#mode-title').text('Mark');
     $('#mode-des').text('');
     $('#msg-study').text('');
+    var markButton = $('#mark-button');
+    markButton.text('continue to mark');
+    markButton.attr('class', 'mark-button-continue');
 
     $('#cover').css('opacity', '0');
 
     var startPc = playCount - (totalCount * repeatCount);
     var pc = startPc > totalCount - 1 ? 0 : playCount - (totalCount * repeatCount);
-    console.log(pc);
+
     player.seekTo(markedDown[pc], true);
     stopWatchStop();
     lapTime = markedLapTime[pc];
@@ -543,7 +574,6 @@ var opacityStep;
 $('#button-study').click(function () {
     listenStop();
     markStop();
-    markedStop();
     studyStop();
     studyStart();
 });
@@ -558,10 +588,8 @@ function studyStart() {
     opacityStep = 0;
 
     $('#marker').hide();
-    $('#time-order').css('visibility', 'visible');
-    $('#level-order').css('visibility', 'visible');
+    $('.study-mode').css('visibility', 'visible');
     $('#cover').css('opacity', '1');
-    $('#prev-button').css('margin-top', '349px');
     $('.control-button').css('visibility', 'visible');
     $('#mode-title').text('Study');
     $('#mode-des').text('');
@@ -691,6 +719,20 @@ $('#time-order').click(function () {
 
     studyStop();
     studyStart();
+});
+
+$('#marked-study').click(function () {
+    if (markedDown.length) {
+        for (var sc = 0; sc < SCRIPT.length; sc++) {
+            for (var pc = 0; pc < totalCount; pc++) {
+                if (SCRIPT[sc].from - 0.3 < markedDown[pc] && SCRIPT[sc].to + 0.3 > markedDown[pc]) {
+                    currentStep = sc;
+                }
+            }
+        }
+    }
+    studyStop();
+    studyPlay();
 });
 
 function studyStop() {
