@@ -11,7 +11,7 @@ var markedMode;
 var markedModes = { LISTEN: 0, REPEAT: 1 };
 
 var studyMode;
-var studyModes = { COVER: 1, PLAY: 2, PLAY_AUDIO: 3 };
+var studyModes = { COVER: 0, PLAY: 1, PLAY_AUDIO: 2 };
 
 var SCRIPT = [
     { from: 1.9, to: 2.3, words: 'chick', audio: 'chick.ogg', level: 1.0 },
@@ -53,7 +53,7 @@ function onYouTubeIframeAPIReady() {
         videoId: 'D5UToOanKPQ',
         playerVars: {
             autoplay: 0,
-            control: 0,
+            controls: 0,
             showinfo: 0,
             rel: 0,
             hl: 'en'
@@ -616,12 +616,21 @@ function studyPlay() {
         var $audio = $('#audio');
         if (opacityStep < 7 || !opacityStep) {
             $audio.empty();
-            $audio.append(
-                '<audio id="audio-now" onended="timeCount()">' +
-                '<source src="audio/' + SCRIPT[currentStep].audio + '" type="audio/ogg">' +
-                '</audio>');
-            var audioNow = document.getElementById('audio-now');
-            $('#msg-study').text(SCRIPT[currentStep].words);
+            if (markedStudy === 'off') {
+                $audio.append(
+                    '<audio id="audio-now" onended="timeCount()">' +
+                    '<source src="audio/' + SCRIPT[currentStep].audio + '" type="audio/ogg">' +
+                    '</audio>');
+                var audioNow = document.getElementById('audio-now');
+                $('#msg-study').text(SCRIPT[currentStep].words);
+            } else if (markedStudy === 'on') {
+                $audio.append(
+                    '<audio id="audio-now" onended="timeCount()">' +
+                    '<source src="audio/' + SCRIPT[markedStep[scriptStep]].audio + '" type="audio/ogg">' +
+                    '</audio>');
+                audioNow = document.getElementById('audio-now');
+                $('#msg-study').text(SCRIPT[markedStep[scriptStep]].words);
+            }
         }
 
         opacitySet();
@@ -632,7 +641,12 @@ function studyPlay() {
 
         if (opacityStep > 5) {
             opacityStep = 0;
-            currentStep++;
+            if (markedStudy === 'off') {
+                currentStep++;
+            } else {
+                scriptStep++;
+                markedStudyPlay();
+            }
         }
     }
 }
@@ -653,14 +667,16 @@ function opacitySet() {
     }
 }
 
+var studyClock;
 function timeCount() {
     if (studyMode === studyModes.PLAY_AUDIO) {
-        setTimeout(function () {
-            audioOnEnded();
-        }, 1500);
+        studyClock = setTimeout(audioOnEnded, 1500);
     }
 }
 function audioOnEnded() {
+    if (markedStep.length === scriptStep) {
+        studyStop();
+    }
     if (currentStep < SCRIPT.length) {
         studyPlay();
     } else {
@@ -679,6 +695,7 @@ $('#prev-button').click(function () {
         currentStep = SCRIPT.length - 1;
     }
     opacityStep = 0;
+    clearTimeout(studyClock);
     studyStep();
 });
 
@@ -690,6 +707,7 @@ $('#skip-button').click(function () {
         currentStep = 0;
     }
     opacityStep = 0;
+    clearTimeout(studyClock);
     studyStep();
 });
 
@@ -721,24 +739,39 @@ $('#time-order').click(function () {
     studyStart();
 });
 
+var markedStudy = 'off';
+var markedStep = [];
+var scriptStep = 0;
 $('#marked-study').click(function () {
+    studyStop();
+    markedStudyPlay();
+});
+
+function markedStudyPlay() {
     if (markedDown.length) {
-        for (var sc = 0; sc < SCRIPT.length; sc++) {
-            for (var pc = 0; pc < totalCount; pc++) {
-                if (SCRIPT[sc].from - 0.3 < markedDown[pc] && SCRIPT[sc].to + 0.3 > markedDown[pc]) {
-                    currentStep = sc;
+        for (scriptStep; scriptStep < SCRIPT.length; scriptStep++) {
+            for (var ps = 0; ps < totalCount; ps++) {
+                if (SCRIPT[scriptStep].from - 0.3 < markedDown[ps] && SCRIPT[scriptStep].to + 0.3 > markedDown[ps]) {
+                    markedStudy = 'on';
+                    markedStep.push(scriptStep);
+                    break;
                 }
             }
+            if (markedStudy === 'on') {
+                break;
+            }
         }
+        studyPlay();
     }
-    studyStop();
-    studyPlay();
-});
+}
 
 function studyStop() {
     $('#mode-title').text('');
+    clearTimeout(studyClock);
     currentStep = 0;
     opacityStep = 0;
+    scriptStep = 0;
+    markedStudy = 'off';
     $('#audio').empty();
 }
 
