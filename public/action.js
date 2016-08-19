@@ -629,10 +629,10 @@ function studyPlay() {
                 console.log('markedStep[scriptStep]: ' + markedStep[scriptStep]);
                 $audio.append(
                     '<audio id="audio-now" onended="timeCount()">' +
-                    '<source src="audio/' + SCRIPT[markedStep[scriptStep]].audio + '" type="audio/ogg">' +
+                    '<source src="audio/' + SCRIPT[scriptStep].audio + '" type="audio/ogg">' +
                     '</audio>');
                 audioNow = document.getElementById('audio-now');
-                $('#msg-study').text(SCRIPT[markedStep[scriptStep]].words);
+                $('#msg-study').text(SCRIPT[scriptStep].words);
             }
         }
 
