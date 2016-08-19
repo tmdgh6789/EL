@@ -624,6 +624,9 @@ function studyPlay() {
                 var audioNow = document.getElementById('audio-now');
                 $('#msg-study').text(SCRIPT[currentStep].words);
             } else if (markedStudy === 'on') {
+                console.log('markedStep.length: ' + markedStep.length);
+                console.log('scriptStep: ' + scriptStep);
+                console.log('markedStep[scriptStep]: ' + markedStep[scriptStep]);
                 $audio.append(
                     '<audio id="audio-now" onended="timeCount()">' +
                     '<source src="audio/' + SCRIPT[markedStep[scriptStep]].audio + '" type="audio/ogg">' +
@@ -762,6 +765,8 @@ function markedStudyPlay() {
             }
         }
         studyPlay();
+    } else {
+        alert('Please press the button after mark');
     }
 }
 
