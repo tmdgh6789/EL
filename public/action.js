@@ -39,6 +39,12 @@ firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
 var player;
 
+// TODO https://github.com/axisj/axisj/wiki/AXISJ-JSDOC-%EC%9E%91%EC%84%B1%EB%B2%95 참고하여 jsdoc 작성
+
+/**
+ * @description 유투브 iframe 이 준비 되었을 때 호출되는 콜백 함수
+ * @see https://developers.google.com/youtube/iframe_api_reference?hl=ko#Requirements
+ */
 /* eslint-disable no-unused-vars */
 // noinspection JSUnusedGlobalSymbols
 function onYouTubeIframeAPIReady() {
@@ -65,12 +71,21 @@ function onYouTubeIframeAPIReady() {
     });
 }
 
+/**
+ * @descriptions 테스트
+ * @param event {Object} YT.Player 개체
+ */
 // noinspection JSUnusedLocalSymbols
 function onPlayerReady(event) {
     resizeVideo();
     listenPlay();
 }
 
+
+/* eslint-disable */
+/**
+ * @description 비디오 크기 조정하는 함수
+ */
 function resizeVideo() {
     var width = $('#player').width();
     var height = width * 0.5625;               // 16:9
@@ -86,6 +101,11 @@ function resizeVideo() {
     $('#mark-button').css('width', width);
 }
 
+/* eslint-disable */
+/**
+ * @description 플레이어의 상태가 변했을 때 호출되는 함수
+ * @param event {Object} YT.Player 개체
+ */
 function onPlayerStateChange(event) {
     switch (mode) {
         case modes.LISTEN :
@@ -108,27 +128,49 @@ function onPlayerStateChange(event) {
 
 /* CLOCK */
 
+/**
+ * @description actionClock의 setTimeout
+ */
 var clock;
 
+/* eslint-disable */
+/**
+ * @description actionClock의 함수들을 반복되게 해주는 함수를 시작하는 함수
+ */
 function clockStart() {
     clock = setTimeout(actionClock, 0);
 }
-
+/* eslint-disable */
+/**
+ * @description actionClock의 함수들을 반복되게 해주는 함수를 멈추는 함수
+ */
 function clockStop() {
     if (clock !== null) clearTimeout(clock);
     clock = null;
 }
 
+/* eslint-disable */
+/**
+ * @description actionClock의 함수들을 반복되게 해주는 함수를 다시 시작하는 함수
+ */
 function clockRestart() {
     clockStop();
     clockStart();
 }
 
+/* eslint-disable */
+/**
+ * @description markedNext 함수를 반복되게 해주는 함수
+ */
 function actionMarkedClock() {
     clockStop();
     clock = setInterval(markedNext, 1);
 }
 
+/* eslint-disable */
+/**
+ * actionClock의 함수들을 반복되게 해주는 함수
+ */
 function actionClock() {
     clock = setTimeout(actionClock, 0);
 
@@ -151,6 +193,9 @@ function actionClock() {
     }
 }
 
+/**
+ * @description cover 클릭 시 실행되는 함수
+ */
 $('#cover').click(function () {
     var $audio = $('#audio');
     switch (mode) {
@@ -187,8 +232,15 @@ $('#cover').click(function () {
 
 /* LISTEN */
 
+/**
+ * @description 비디오를 재생한 회수를 저장하는 변수
+ * @type {number}
+ */
 var listenCount = 0;
 
+/**
+ * @description Listen 버튼 클릭 시 호출되는 함수
+ */
 $('#button-listen').click(function () {
     mode = modes.LISTEN;
     resizeVideo();
@@ -203,7 +255,10 @@ $('#button-listen').click(function () {
     listenPlay();
 });
 
-
+/* eslint-disable */
+/**
+ * @description Listen mode 를 시작하는 함수
+ */
 function listenPlay() {
     mode = modes.LISTEN;
     $('#mode-title').text('Listen');
@@ -213,6 +268,11 @@ function listenPlay() {
     player.playVideo();
 }
 
+/* eslint-disable */
+/**
+ * @description Listen mode 에서 비디오의 상태가 변했을때 호출되는 함수
+ * @param event {Object} YT.Player 개체
+ */
 function listenStateChange(event) {
     if (event.data === YT.PlayerState.ENDED) {
         var $cover = $('#cover');
@@ -227,6 +287,10 @@ function listenStateChange(event) {
     $('#listen-counter').text(listenCount);
 }
 
+/* eslint-disable */
+/**
+ * Listen mode 를 멈추는 함수
+ */
 function listenStop() {
     player.seekTo(0, true);
     player.pauseVideo();
@@ -235,9 +299,20 @@ function listenStop() {
 
 /* MARK */
 
+/**
+ * @description mark-button 을  mousedown 했을 때의 시간을 저장하는 배열
+ * @type {Array}
+ */
 var markedDown = [];
+/**
+ * @description mark-button 을 mouseup 했을 때의 시간을 저장하는 배열
+ * @type {Array}
+ */
 var markedUp = [];
 
+/**
+ * @description mark 버튼을 클릭 시 호출되는 함수
+ */
 $('#button-mark').click(function () {
     listenStop();
     markStop();
@@ -247,7 +322,9 @@ $('#button-mark').click(function () {
     markStart();
 });
 
-
+/**
+ * @description mark mode 를 초기화 함수
+ */
 function markStart() {
     mode = modes.MARK;
     markMode = markModes.COVER;
@@ -268,6 +345,9 @@ function markStart() {
     clockRestart();
 }
 
+/**
+ * @description mark mode 의 비디오 재생하는 함수
+ */
 function markPlay() {
     $('#cover').css('opacity', '0');
     mark.startTime = new Date();
@@ -284,6 +364,9 @@ function markPlay() {
     markMode = markModes.PLAY;
 }
 
+/**
+ * @description mark mode 를 멈추는 함수
+ */
 function markStop() {
     stopWatchStop();
     markPosition = 0;
@@ -292,8 +375,18 @@ function markStop() {
     $('#cover').show();
 }
 
+/**
+ * @description startTime: mark mode 시작 시작, playerStartTime: 플레이어 시작 시간, countDown: 플레이어가 시작 될 카운트, mouseDown: markbar mouseDown 여부
+ * @type {{startTime: number, playerStartTime: number, countDown: number, mouseDown: number}}
+ */
 var mark = { startTime: 0, playerStartTime: 1, countDown: 2, mouseDown: 3 };
+/**
+ * @description mark-position 위치 저장 변수
+ */
 var markPosition;
+/**
+ * @description mark mode 가 시작되거나 mark-positon 의 위치를 조정하는 함수
+ */
 function markClock() {
     switch (markMode) {
         case markModes.COVER :
@@ -327,6 +420,10 @@ function markClock() {
     }
 }
 
+/**
+ * @description mark mode 에서 플레이어의 상태가 변했을 때 호출되는 함수
+ * @param event {Object} YT.Player 개체
+ */
 function markStateChange(event) {
     if (event.data === YT.PlayerState.ENDED) {
         stopWatchStop();
@@ -341,9 +438,19 @@ function markStateChange(event) {
 /* MARKBAR */
 
 var $markButton = $('#mark-button');
-
+/**
+ * @description mark 된 횟수
+ * @type {number}
+ */
 var totalCount = 0;
+/**
+ * @description mark 했을 때의 stopwatch 시간
+ * @type {Array}
+ */
 var markedLapTime = [];
+/**
+ * @description mark-button 을 mousedown 했을 때 이벤트
+ */
 $markButton.mousedown(function () {
     if (mode === modes.MARK) {
         var s = S;
@@ -357,6 +464,9 @@ $markButton.mousedown(function () {
     }
 });
 
+/**
+ * @description markbar 를 mouseup 했을 때 이벤트
+ */
 $markButton.mouseup(function () {
     if (mark.mouseDown === 'down') {
         var s = S;
@@ -367,12 +477,18 @@ $markButton.mouseup(function () {
     }
 });
 
+/**
+ * @description clear-button 을 클릭했을 때 이벤트
+ */
 $('#clear-button').click(function () {
     markedClear();
     markbarInit();
     markbarDraw();
 });
 
+/**
+ * @description mark 한 것들을 없애는 함수
+ */
 function markedClear() {
     for ( var i = 0; i < totalCount; i++) {
         markedDown.pop();
@@ -383,13 +499,26 @@ function markedClear() {
     totalCount = 0;
 }
 
+/**
+ * @description markbar 의  배열
+ * @type {Array}
+ */
 var markbarStatus = [];
+/**
+ * @description markbar 를 미리 충분히 만들어 놓는  함수
+ */
 function markbarInit() {
     for (var i = 0; i < 2000; i++) markbarStatus[i] = 'up';
 }
 
+/**
+ * @description 플레이어의 전체 재셍 시간
+ */
 var playerDuration;
 
+/**
+ * @description markbar 를 재생 시간에 맞게 만드는 함수
+ */
 function markbarDraw() {
     if (player === null) return;
 
@@ -410,6 +539,10 @@ function markbarDraw() {
     }
 }
 
+/**
+ * @description markbar 길이 계산 함수
+ * @param i
+ */
 function markbarPosition(i) {
     var screenWidth = $('#player').width();
     var markbarWidth = screenWidth - (12 + 12);
@@ -420,6 +553,9 @@ function markbarPosition(i) {
 
 /* MARKED */
 
+/**
+ * @description listen-button 클릭 이벤트 (mark 한 부분 한번 재생)
+ */
 $('#listen-button').click(function () {
     mode = modes.MARKED;
     markedMode = markedModes.LISTEN;
@@ -432,6 +568,9 @@ $('#listen-button').click(function () {
     }
 });
 
+/**
+ * @description repeat-button 클릭 이벤트 (mark 한 부분 다섯번 재생)
+ */
 $('#repeat-button').click(function () {
     mode = modes.MARKED;
     markedMode = markedModes.REPEAT;
@@ -444,6 +583,10 @@ $('#repeat-button').click(function () {
     }
 });
 
+/**
+ * @description marked mode 에서 플레이어의 상태가 변했을 때 호출되는 함수
+ * @param event {Object} YT.Player 개체
+ */
 function markedStateChange(event) {
     if (event.data === YT.PlayerState.ENDED) {
         stopWatchStop();
@@ -462,7 +605,14 @@ function markedStateChange(event) {
     }
 }
 
+/**
+ * @description 재생 회수 카운트
+ * @type {number}
+ */
 var playCount = 0;
+/**
+ * @description mark 한 부분 재생 시작하는 함수
+ */
 function markedStart() {
     $('#mode-title').text('Mark');
     $('#mode-des').text('');
@@ -496,8 +646,20 @@ function markedStart() {
     }
 }
 
+/**
+ * @description 재생 반복 카운트
+ * @type {number}
+ */
 var repeatCount = 0;
+/**
+ * @description 재생할 구간 배열
+ * @type {Array}
+ */
 var section = [];
+
+/**
+ * @description 처음 mark 한 부분의 재생이 끝나면 다음 부분을 재생하게 하는 함수
+ */
 function markedNext() {
     var currentTime = (startAt ? x.now() - startAt : 0) / 1000;
     section[playCount] = markedUp[playCount] - markedDown[playCount];
@@ -556,6 +718,9 @@ function markedNext() {
     }
 }
 
+/**
+ * @description marked mode 를 멈추는 함수
+ */
 function markedStop() {
     markedClear();
     markbarInit();
@@ -569,8 +734,17 @@ function markedStop() {
 
 /* STUDY */
 
+/**
+ * @description 현재 재생되고 있는 단어의 순서
+ */
 var currentStep;
+/**
+ * @description 현재 재생되고 있는 단어의 투명도 단계
+ */
 var opacityStep;
+/**
+ * @description Study 버튼 클릭 이벤트
+ */
 $('#button-study').click(function () {
     listenStop();
     markStop();
@@ -578,6 +752,9 @@ $('#button-study').click(function () {
     studyStart();
 });
 
+/**
+ * @description study mode 를 초기화하는 함수
+ */
 function studyStart() {
     mode = modes.STUDY;
     studyMode = studyModes.PLAY;
@@ -598,6 +775,9 @@ function studyStart() {
     studyStep();
 }
 
+/**
+ * @description currentStep 을 초기화 해주는 함수
+ */
 function studyStep() {
     if (!currentStep) {
         currentStep = 0;
@@ -608,32 +788,24 @@ function studyStep() {
     studyPlay();
 }
 
+/**
+ * @description study mode 를 시작하는 함수
+ */
 function studyPlay() {
     if (mode === modes.STUDY) {
         mode = modes.STUDY;
         studyMode = studyModes.PLAY_AUDIO;
         $('#mode-title').text('');
         var $audio = $('#audio');
+        console.log('currentStep2 : ' + currentStep);
         if (opacityStep < 7 || !opacityStep) {
             $audio.empty();
-            if (markedStudy === 'off') {
-                $audio.append(
-                    '<audio id="audio-now" onended="timeCount()">' +
-                    '<source src="audio/' + SCRIPT[currentStep].audio + '" type="audio/ogg">' +
-                    '</audio>');
-                var audioNow = document.getElementById('audio-now');
-                $('#msg-study').text(SCRIPT[currentStep].words);
-            } else if (markedStudy === 'on') {
-                console.log('markedStep.length: ' + markedStep.length);
-                console.log('scriptStep: ' + scriptStep);
-                console.log('markedStep[scriptStep]: ' + markedStep[scriptStep]);
-                $audio.append(
-                    '<audio id="audio-now" onended="timeCount()">' +
-                    '<source src="audio/' + SCRIPT[scriptStep].audio + '" type="audio/ogg">' +
-                    '</audio>');
-                audioNow = document.getElementById('audio-now');
-                $('#msg-study').text(SCRIPT[scriptStep].words);
-            }
+            $audio.append(
+                '<audio id="audio-now" onended="timeCount()">' +
+                '<source src="audio/' + SCRIPT[currentStep].audio + '" type="audio/ogg">' +
+                '</audio>');
+            var audioNow = document.getElementById('audio-now');
+            $('#msg-study').text(SCRIPT[currentStep].words);
         }
 
         opacitySet();
@@ -647,13 +819,15 @@ function studyPlay() {
             if (markedStudy === 'off') {
                 currentStep++;
             } else {
-                scriptStep++;
                 markedStudyPlay();
             }
         }
     }
 }
 
+/**
+ * @description 단어의 투명도를 설정해주는 함수
+ */
 function opacitySet() {
     var $msgStudy = $('#msg-study');
 
@@ -670,17 +844,26 @@ function opacitySet() {
     }
 }
 
+/**
+ *  @description study mode 의 setTimeout
+ */
 var studyClock;
 function timeCount() {
     if (studyMode === studyModes.PLAY_AUDIO) {
-        studyClock = setTimeout(audioOnEnded, 1500);
+        studyClock = setTimeout(audioOnEnded, 1200);
     }
 }
+
+/**
+ * @description timeCount 가 실행이 되면 호출되는 함수 (오디오가 멈추는 조건)
+ */
 function audioOnEnded() {
-    if (markedStep.length === scriptStep) {
-        studyStop();
-    }
     if (currentStep < SCRIPT.length) {
+        if (markedStudy === 'on') {
+            if (opacityStep > 5) {
+                studyStop();
+            }
+        }
         studyPlay();
     } else {
         $('#mode-title').text('Study');
@@ -690,6 +873,9 @@ function audioOnEnded() {
     }
 }
 
+/**
+ * @description prev-button 클릭 이벤트 (전 단계의 단어로 이동)
+ */
 $('#prev-button').click(function () {
     $('#mode-des').text('');
     if (currentStep > 0) {
@@ -702,6 +888,9 @@ $('#prev-button').click(function () {
     studyStep();
 });
 
+/**
+ * @description skip-button 클릭 이벤트 (다음 단계의 단어로 이동)
+ */
 $('#skip-button').click(function () {
     $('#mode-des').text('');
     if (currentStep < SCRIPT.length) {
@@ -714,6 +903,9 @@ $('#skip-button').click(function () {
     studyStep();
 });
 
+/**
+ * @description level-order 클릭 이벤트 (SCRIPT 의 단어들을 level 순으로 재정렬)
+ */
 $('#level-order').click(function () {
     SCRIPT.sort(function (a, b) {
         if (a.level < b.level) {
@@ -728,6 +920,9 @@ $('#level-order').click(function () {
     studyStart();
 });
 
+/**
+ * @description time-order 클릭 이벤트 (SCRIPT 의 단어들을 재생순으로 재정렬)
+ */
 $('#time-order').click(function () {
     SCRIPT.sort(function (a, b) {
         if (a.from < b.from) {
@@ -742,21 +937,39 @@ $('#time-order').click(function () {
     studyStart();
 });
 
+/**
+ * @description markedStudy mode 의 on, off 여부
+ */
 var markedStudy = 'off';
-var markedStep = [];
+/**
+ * @description SCRIPT 의 순서를 저장
+ * @type {number}
+ */
 var scriptStep = 0;
+
+/**
+ * @description marked-study 클릭 이벤트 (markedStudy 초기화)
+ */
 $('#marked-study').click(function () {
-    studyStop();
+    markedStudy = 'off';
+    $('#mode-title').text('');
+    $('#audio').empty();
+    clearTimeout(studyClock);
+    opacityStep = 0;
     markedStudyPlay();
 });
 
+/**
+ * @description marked study 시작하는 함수
+ */
 function markedStudyPlay() {
     if (markedDown.length) {
         for (scriptStep; scriptStep < SCRIPT.length; scriptStep++) {
             for (var ps = 0; ps < totalCount; ps++) {
                 if (SCRIPT[scriptStep].from - 0.3 < markedDown[ps] && SCRIPT[scriptStep].to + 0.3 > markedDown[ps]) {
                     markedStudy = 'on';
-                    markedStep.push(scriptStep);
+                    currentStep = scriptStep;
+                    console.log('currentStep1 : ' + currentStep);
                     break;
                 }
             }
@@ -770,6 +983,9 @@ function markedStudyPlay() {
     }
 }
 
+/**
+ * @description study mode 를 멈추는 함수
+ */
 function studyStop() {
     $('#mode-title').text('');
     clearTimeout(studyClock);
@@ -779,7 +995,6 @@ function studyStop() {
     markedStudy = 'off';
     $('#audio').empty();
 }
-
 
 /* STOPWATCH */
 

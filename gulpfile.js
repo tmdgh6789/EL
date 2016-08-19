@@ -3,10 +3,8 @@
 var gulp = require('gulp');
 var browserSync = require('browser-sync');
 var nodemon = require('gulp-nodemon');
+var jsdoc = require('gulp-jsdoc3');
 
-
-gulp.task('default', ['browser-sync'], function () {
-});
 
 gulp.task('browser-sync', ['nodemon'], function() {
     browserSync.init({
@@ -30,4 +28,17 @@ gulp.task('nodemon', function (cb) {
             started = true;
         }
     });
+});
+
+gulp.task('watch', function () {
+    gulp.watch(['!public/docs/**', 'public/**/*.js' ], ['jsdoc']);
+});
+
+gulp.task('jsdoc', function (cb) {
+    var config = require('./jsdoc.json');
+    gulp.src(['README.md', 'public/**/*.js'], {read: false})
+        .pipe(jsdoc(config, cb));
+});
+
+gulp.task('default', ['browser-sync', 'watch', 'jsdoc'], function () {
 });
